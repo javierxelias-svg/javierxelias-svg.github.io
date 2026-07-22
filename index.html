@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Javier Elías — builder shipping real AI systems with Claude Code</title>
+<meta name="description" content="Self-taught builder shipping autonomous multi-agent systems, a business operating system, and a self-maintaining knowledge base with Claude Code. Built with real discipline, honest about what's broken.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* near-black tinted toward teal — never #000 */
+    --bg:        oklch(0.150 0.006 195);
+    --bg-raise:  oklch(0.185 0.008 195);
+    --surface:   oklch(0.205 0.009 195);
+    --line:      oklch(0.320 0.012 195 / 0.55);
+    --line-soft: oklch(0.320 0.012 195 / 0.28);
+    --text:      oklch(0.940 0.005 195);
+    --muted:     oklch(0.680 0.012 195);
+    --faint:     oklch(0.540 0.012 195);
+    /* teal — used with intention, never decoration */
+    --teal:      oklch(0.760 0.130 182);
+    /* golden hour — the single warm signature */
+    --gold:      oklch(0.820 0.110 74);
+    --gold-soft: oklch(0.820 0.110 74 / 0.16);
+
+    --serif: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono:  'Geist Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+
+    --measure: 64ch;
+    --gutter: clamp(1.25rem, 5vw, 6rem);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--serif);
+    font-weight:400;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--gold-soft); color:var(--text); }
+  a{ color:inherit; text-decoration:none; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding-inline:var(--gutter); }
+
+  /* --- mono label system --- */
+  .eyebrow{
+    font-family:var(--mono); font-weight:500; font-size:0.72rem;
+    letter-spacing:0.22em; text-transform:uppercase; color:var(--faint);
+  }
+
+  /* ============ HERO ============ */
+  .hero{ position:relative; padding-top:clamp(5rem,14vh,10rem); padding-bottom:clamp(4rem,12vh,8rem); }
+  .hero__meta{ margin-bottom:2.4rem; }
+  .hero h1{
+    font-family:var(--serif); font-weight:600;
+    font-size:clamp(2.7rem, 8vw, 5.6rem);
+    line-height:0.98; letter-spacing:-0.03em; margin:0;
+    max-width:14ch;
+  }
+  .hero h1 .last{ color:var(--muted); font-weight:300; }
+  .hero__lead{
+    margin:1.8rem 0 0; max-width:30ch;
+    font-size:clamp(1.15rem, 2.6vw, 1.6rem);
+    font-weight:400; line-height:1.35; color:var(--text);
+    letter-spacing:-0.01em;
+  }
+  .hero__place{
+    font-family:var(--mono); font-size:0.8rem; color:var(--faint);
+    margin-top:1.6rem; letter-spacing:0.03em;
+  }
+  .hero__links{
+    display:flex; flex-wrap:wrap; gap:1.6rem 2.2rem; margin-top:2.6rem;
+    font-family:var(--mono); font-size:0.85rem; letter-spacing:0.02em;
+  }
+  .hero__links a{
+    color:var(--muted); padding-bottom:3px;
+    border-bottom:1px solid var(--line-soft); transition:color .35s ease, border-color .35s ease;
+  }
+  .hero__links a:hover{ color:var(--text); border-color:var(--gold); }
+
+  /* golden-hour horizon — the signature. One instance. */
+  .horizon{
+    position:relative; height:1px; margin-top:clamp(4rem,10vh,7rem);
+    background:linear-gradient(90deg, transparent, var(--gold) 22%, var(--gold) 60%, transparent);
+    opacity:0.55;
+  }
+  .horizon::after{
+    content:""; position:absolute; left:0; right:0; top:1px; height:140px;
+    background:linear-gradient(180deg, var(--gold-soft), transparent 78%);
+    pointer-events:none;
+  }
+
+  /* ============ SECTION SCAFFOLD ============ */
+  section{ padding-block:clamp(4rem,10vh,7.5rem); }
+  .sec-head{ display:flex; align-items:baseline; gap:1rem; margin-bottom:2.8rem; }
+  .sec-head .idx{ font-family:var(--mono); font-size:0.72rem; color:var(--teal); letter-spacing:0.1em; }
+  .sec-head h2{
+    font-family:var(--serif); font-weight:500; font-size:clamp(0.95rem,1.4vw,1.05rem);
+    letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); margin:0;
+  }
+
+  /* ============ ABOUT ============ */
+  .about p{
+    max-width:var(--measure); font-size:clamp(1.15rem,2.2vw,1.45rem);
+    line-height:1.5; font-weight:400; letter-spacing:-0.01em; margin:0 0 1.2rem;
+  }
+  .about p:last-child{ margin-bottom:0; color:var(--muted); }
+  .about .glow{ color:var(--gold); }
+
+  /* ============ FEATURED (meta) CARD ============ */
+  .featured{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:clamp(1.8rem,4vw,3.2rem);
+    background:
+      linear-gradient(180deg, var(--gold-soft), transparent 40%),
+      var(--bg-raise);
+    overflow:hidden;
+  }
+  .featured .eyebrow{ color:var(--gold); }
+  .featured h3{
+    font-family:var(--serif); font-weight:600; letter-spacing:-0.02em;
+    font-size:clamp(1.8rem,4.5vw,3rem); line-height:1.02; margin:1rem 0 0;
+    max-width:16ch;
+  }
+  .featured__body{
+    display:grid; gap:2rem 3.5rem; margin-top:2rem;
+    grid-template-columns:1fr;
+  }
+  @media(min-width:760px){ .featured__body{ grid-template-columns:1.15fr 0.85fr; } }
+  .featured__body p{ margin:0; max-width:46ch; font-size:1.02rem; line-height:1.6; color:var(--text); }
+  .featured__body .decision{ color:var(--muted); }
+  .featured__body .decision b{ color:var(--text); font-weight:600; }
+  .closer{
+    margin-top:2.4rem; padding-top:1.8rem; border-top:1px solid var(--line-soft);
+    font-family:var(--serif); font-weight:400; font-style:normal;
+    font-size:clamp(1.05rem,2.4vw,1.4rem); line-height:1.35; letter-spacing:-0.01em;
+    color:var(--text); max-width:34ch;
+  }
+  .closer .em{ color:var(--gold); }
+
+  /* ============ WORK LIST (editorial, asymmetric) ============ */
+  .work{ border-top:1px solid var(--line-soft); margin-top:3rem; }
+  .item{
+    display:grid; grid-template-columns:1fr; gap:0.6rem 3rem;
+    padding-block:clamp(2rem,5vw,3rem);
+    border-bottom:1px solid var(--line-soft);
+  }
+  @media(min-width:820px){
+    .item{ grid-template-columns:4.5rem 1fr; align-items:start; }
+  }
+  .item__num{ font-family:var(--mono); font-size:0.78rem; color:var(--faint); padding-top:0.55rem; }
+  .item__title{
+    font-family:var(--serif); font-weight:600; letter-spacing:-0.02em;
+    font-size:clamp(1.5rem,3.4vw,2.15rem); line-height:1.05; margin:0;
+  }
+  .item__what{ margin:0.9rem 0 0; max-width:56ch; font-size:1.03rem; line-height:1.55; color:var(--text); }
+  .item__decision{ margin:0.7rem 0 0; max-width:56ch; font-size:0.98rem; line-height:1.55; color:var(--muted); }
+  .item__decision b{ color:var(--text); font-weight:600; }
+  .status{
+    margin-top:1.1rem; display:inline-flex; align-items:center; gap:0.55rem;
+    font-family:var(--mono); font-size:0.76rem; letter-spacing:0.04em; color:var(--faint);
+  }
+  .status .dot{ width:7px; height:7px; border-radius:50%; background:var(--faint); flex:none; }
+  .status.live .dot{ background:var(--teal); box-shadow:0 0 0 0 var(--teal); animation:pulse 2.6s ease-out infinite; }
+  .status.live{ color:var(--teal); }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 oklch(0.760 0.130 182 / 0.5); }
+    70%{ box-shadow:0 0 0 7px oklch(0.760 0.130 182 / 0); }
+    100%{ box-shadow:0 0 0 0 oklch(0.760 0.130 182 / 0); }
+  }
+
+  /* secondary compact row */
+  .secondary{ margin-top:2.6rem; display:grid; gap:1.4rem; }
+  @media(min-width:720px){ .secondary{ grid-template-columns:1fr 1fr; gap:1.4rem 3rem; } }
+  .mini__title{ font-family:var(--serif); font-weight:600; font-size:1.15rem; letter-spacing:-0.01em; }
+  .mini__title .tag{ font-family:var(--mono); font-size:0.7rem; color:var(--faint); margin-left:0.6rem; letter-spacing:0.04em; }
+  .mini p{ margin:0.6rem 0 0; color:var(--muted); font-size:0.96rem; line-height:1.55; max-width:50ch; }
+  .mini__note{ font-family:var(--mono); font-size:0.72rem !important; color:var(--faint); letter-spacing:0.03em; margin-top:0.8rem !important; }
+
+  /* ============ HOW I BUILD ============ */
+  .build{ display:grid; gap:2.2rem; }
+  @media(min-width:760px){ .build{ grid-template-columns:repeat(3,1fr); gap:3rem; } }
+  .build__k{ font-family:var(--serif); font-weight:600; font-size:1.2rem; letter-spacing:-0.01em; margin:0 0 0.6rem; }
+  .build__k .mk{ color:var(--teal); font-family:var(--mono); font-size:0.9rem; margin-right:0.5rem; }
+  .build p{ margin:0; color:var(--muted); font-size:0.98rem; line-height:1.55; max-width:40ch; }
+
+  /* ============ CERTS ============ */
+  .certs{ display:flex; flex-wrap:wrap; gap:1rem 1.2rem; }
+  .cert{
+    font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em; color:var(--muted);
+    border:1px solid var(--line-soft); border-radius:100px; padding:0.55rem 1.1rem;
+  }
+  .cert b{ color:var(--text); font-weight:500; }
+  .cert .score{ color:var(--gold); }
+
+  /* ============ FOOTER ============ */
+  footer{ border-top:1px solid var(--line-soft); padding-block:clamp(3rem,7vh,5rem); }
+  .foot{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2rem; align-items:flex-end; }
+  .foot__links{ display:flex; flex-wrap:wrap; gap:1.4rem; font-family:var(--mono); font-size:0.85rem; }
+  .foot__links a{ color:var(--muted); border-bottom:1px solid var(--line-soft); padding-bottom:2px; transition:color .3s, border-color .3s; }
+  .foot__links a:hover{ color:var(--text); border-color:var(--gold); }
+  .foot__note{ font-family:var(--mono); font-size:0.74rem; color:var(--faint); line-height:1.6; max-width:34ch; letter-spacing:0.02em; }
+
+  @media(prefers-reduced-motion:reduce){
+    html{ scroll-behavior:auto; }
+    .status.live .dot{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <div class="hero__meta eyebrow">Javier Elías — Designer &amp; AI Builder</div>
+  <h1>Self-taught builder shipping <span class="last">real AI systems.</span></h1>
+  <p class="hero__lead">I use Claude Code every day to take ideas end to end, then document what's broken as plainly as what works.</p>
+  <div class="hero__place">Puerto Rico · US citizen</div>
+  <nav class="hero__links" aria-label="Contact">
+    <a href="mailto:javierxelias@gmail.com">javierxelias@gmail.com</a>
+    <a href="https://www.linkedin.com/in/javier-elías-83343b39a" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/javierxelias-svg" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+  <div class="horizon" aria-hidden="true"></div>
+</header>
+
+<main>
+
+  <!-- ABOUT -->
+  <section class="wrap about" id="about">
+    <div class="sec-head"><span class="idx">01</span><h2>About</h2></div>
+    <p>Industrial Design taught me that form has to earn its function. I build the same way now, in software: autonomous multi-agent automations, a full business operating system, desktop apps, a knowledge base a model maintains as its own memory.</p>
+    <p>I build like it has to run without me watching: preflight checks, crash handling, a human tap before anything real happens. Things have broken, collapsed even, and every time I came back, found the bug, and fixed it. Years in high-touch service and insurance sales gave me the other half of the job, <span class="glow">explaining technical things to people in the words they actually use.</span></p>
+  </section>
+
+  <!-- SELECTED WORK -->
+  <section class="wrap" id="work">
+    <div class="sec-head"><span class="idx">02</span><h2>Selected Work</h2></div>
+
+    <!-- FEATURED / META -->
+    <article class="featured reveal">
+      <div class="eyebrow">Featured · the system you're reading</div>
+      <h3>The workspace that wrote this application.</h3>
+      <div class="featured__body">
+        <p>A workspace I architected inside Claude Code to keep myself disciplined: custom slash commands, a verification-gate doctrine, file-based memory that survives a session reset, and a spec&nbsp;→&nbsp;plan&nbsp;→&nbsp;build&nbsp;→&nbsp;verify&nbsp;→&nbsp;ship pipeline every deliverable moves through.</p>
+        <p class="decision">The non-obvious decision: it <b>forbids the sentence "this should work."</b> Nothing is done because it looks done, only when it ran and left a receipt. Honesty is enforced by the machine, not by willpower.</p>
+      </div>
+      <p class="closer">This résumé, the essays, and this page were produced <span class="em">by this system.</span> You're reading its output.</p>
+    </article>
+
+    <div class="work">
+      <article class="item reveal">
+        <div class="item__num">/ 01</div>
+        <div>
+          <h3 class="item__title">XPT OS</h3>
+          <p class="item__what">An autonomous lead engine that runs without me: three cooperating agents search 14+ fragmented sources weekly, score each lead against a weighted rubric with hard vetoes, dedupe against a persistent ledger so nothing surfaces twice, and draft personalized outreach to Telegram.</p>
+          <p class="item__decision">The cloud sandbox blocks outbound network calls, so I <b>used a git commit as the message queue</b> to get work off the box.</p>
+          <div class="status live"><span class="dot"></span>Live · 11 verified net-new leads · outreach auto-drafting weekly</div>
+        </div>
+      </article>
+
+      <article class="item reveal">
+        <div class="item__num">/ 02</div>
+        <div>
+          <h3 class="item__title">Web OS</h3>
+          <p class="item__what">A web-design business encoded as software: a five-stage system (source → design → outreach → CRM → close) that finds businesses with weak sites, produces $10K-quality builds, and runs the sale. ~2,750 lines of Python across 21 scripts plus a Next.js build starter.</p>
+          <p class="item__decision">The hard part wasn't scraping, it was <b>encoding judgment</b>: which leads are worth it, an explicit anti-slop design bar, and a verify-before-send gate added after an early run bounced ~17%.</p>
+          <div class="status"><span class="dot"></span>v1 · strategy since pivoted on its own retrospective</div>
+        </div>
+      </article>
+
+      <article class="item reveal">
+        <div class="item__num">/ 03</div>
+        <div>
+          <h3 class="item__title">ELiaS</h3>
+          <p class="item__what">A 9-agent personal AI operating system, built the way I'd want it if something real depended on it. ~9,700 lines: a shared resilience layer (preflight that exits clean instead of crash-looping, crash wrapper with alerting, Keychain secret fetch), a 4-provider LLM failover cascade, and a dead-man's switch that alerts from off the machine so a dead Mac still raises an alarm.</p>
+          <p class="item__decision">A hard rule: <b>machine-written knowledge is quarantined</b> from anything the system tells me about myself. Every real-world action needs a human tap.</p>
+          <div class="status"><span class="dot"></span>Dormant · the resilience rules I now build by were extracted from how this one failed</div>
+        </div>
+      </article>
+
+      <article class="item reveal">
+        <div class="item__num">/ 04</div>
+        <div>
+          <h3 class="item__title">2nd Brain OS</h3>
+          <p class="item__what">A knowledge base a language model maintains as its own memory: an Obsidian vault where Claude Code is librarian and writer, with a three-tier context budget and a hand-written task router that answers any question in a capped number of reads.</p>
+          <p class="item__decision">A ground-truth file the model is <b>forbidden to exceed</b>, and autonomous writes tagged unverified, so machine claims stay separable from human fact. 176 agent-authored pages, nightly backup.</p>
+          <div class="status"><span class="dot"></span>Knowledge layer live and compounding · scheduled-agent layer down and documented as such</div>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item__num">/ 05</div>
+        <div>
+          <h3 class="item__title">Inventory System</h3>
+          <p class="item__what">The first thing I built to help someone else. A first-time founder starting a glass-fabrication shop asked me to build his inventory system with Claude Code, so I did, for free. Google Sheets, two tabs: a master item database and a daily movements log. Scan an item ID, the sheet pulls its details, log stock in or out, and the on-hand count updates itself.</p>
+          <p class="item__decision">On-hand quantity is <b>never typed, it's derived from the movement ledger</b>, so the count can't disagree with its own history. Formulas over scripts on purpose: every rule is visible in the cell, so someone non-technical can own it without me around.</p>
+          <div class="status"><span class="dot"></span>Built unpaid, to help a first-time founder get off the ground</div>
+        </div>
+      </article>
+
+      <div class="secondary">
+        <div class="mini">
+          <div class="mini__title">FrecuencIA OS <span class="tag">content OS</span></div>
+          <p>A content-creation operating system I run for myself. A context-engineered Claude Code workspace that boots a full session with one command, plus a content engine that turns a voice memo into ready-to-post pieces without touching my voice: Claude transcribes, I write.</p>
+          <p class="mini__note">Live for its owner · building a personal presence from zero, in public</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">XPRST <span class="tag">macOS · Electron</span></div>
+          <p>A macOS dictation app that never steals focus. Hit a hotkey anywhere, speak, and the transcript lands on your clipboard without the app you're in ever knowing it happened. Whisper via Groq, 3,157 lines. The hard part was Electron window management: a pill UI built to be un-focusable and click-through.</p>
+          <p class="mini__note">Personal daily driver · stable · not productized</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW I BUILD -->
+  <section class="wrap" id="how">
+    <div class="sec-head"><span class="idx">03</span><h2>How I build</h2></div>
+    <div class="build">
+      <div class="reveal">
+        <p class="build__k"><span class="mk">→</span>Verification over vibes</p>
+        <p>Nothing ships because it looks done. It ships when it ran and there's a receipt.</p>
+      </div>
+      <div class="reveal">
+        <p class="build__k"><span class="mk">→</span>Built to survive handoff</p>
+        <p>Preflight, crash handling, approval gates. Someone else should be able to own it.</p>
+      </div>
+      <div class="reveal">
+        <p class="build__k"><span class="mk">→</span>Honest about what's broken</p>
+        <p>Dormant is dormant. A projection is a projection. The defect list is part of the work.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTS -->
+  <section class="wrap" id="certs">
+    <div class="sec-head"><span class="idx">04</span><h2>Certifications</h2></div>
+    <div class="certs">
+      <span class="cert"><b>AI Fluency</b></span>
+      <span class="cert"><b>Claude 101</b></span>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <div class="foot">
+    <nav class="foot__links" aria-label="Contact">
+      <a href="mailto:javierxelias@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/javier-elías-83343b39a" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/javierxelias-svg" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p class="foot__note">Built in Claude Code, verified before shipping. Javier Elías, Puerto Rico.</p>
+  </div>
+</footer>
+
+</body>
+</html>
