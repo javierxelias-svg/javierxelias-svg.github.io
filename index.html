@@ -163,6 +163,10 @@
     font-family:var(--serif); font-weight:600; letter-spacing:-0.02em;
     font-size:clamp(1.5rem,3.4vw,2.15rem); line-height:1.05; margin:0;
   }
+  .item__title a{ color:inherit; text-decoration:none; border-bottom:2px solid var(--gold-soft); transition:border-color .3s ease; }
+  .item__title a:hover{ border-color:var(--gold); }
+  .status a{ color:inherit; text-decoration:none; border-bottom:1px solid transparent; transition:border-color .3s ease; }
+  .status a:hover{ border-color:var(--teal); }
   .item__what{ margin:0.9rem 0 0; max-width:56ch; font-size:1.03rem; line-height:1.55; color:var(--text); }
   .item__decision{ margin:0.7rem 0 0; max-width:56ch; font-size:0.98rem; line-height:1.55; color:var(--muted); }
   .item__decision b{ color:var(--text); font-weight:600; }
@@ -304,6 +308,16 @@
           <p class="item__what">The first thing I built to help someone else. A first-time founder starting a glass-fabrication shop asked me to build his inventory system with Claude Code, so I did, for free. Google Sheets, two tabs: a master item database and a daily movements log. Scan an item ID, the sheet pulls its details, log stock in or out, and the on-hand count updates itself.</p>
           <p class="item__decision">On-hand quantity is <b>never typed, it's derived from the movement ledger</b>, so the count can't disagree with its own history. Formulas over scripts on purpose: every rule is visible in the cell, so someone non-technical can own it without me around.</p>
           <div class="status"><span class="dot"></span>Built unpaid, to help a first-time founder get off the ground</div>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item__num">/ 06</div>
+        <div>
+          <h3 class="item__title"><a href="/food-pantry-demo/">Food Pantry Weekly Digest</a></h3>
+          <p class="item__what">A working demo of what I'd build for a nonprofit. It turns a food pantry's messy weekly numbers into a plain-English brief anyone can act on: what's stocked, what's critically low, and a ready-to-post ask to the community. Sample data, no real org's information; edit anything and the digest recomputes live.</p>
+          <p class="item__decision">Built for what this fellowship is about: <b>AI making a small organization's operations legible to the non-technical people who run it</b> — the exact thing years of service and sales taught me to do.</p>
+          <div class="status live"><span class="dot"></span><a href="/food-pantry-demo/">Open the live demo →</a></div>
         </div>
       </article>
 
