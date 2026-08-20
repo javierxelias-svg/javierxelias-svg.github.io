@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the system says vs. what the user sees — Javier Elías Crespo</title>
+<meta name="description" content="I built a job-search engine that reads 153 employer job boards through their own APIs. Three times it told me something confidently wrong. Here is how I found out each time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: oklch(0.150 0.006 195); --bg-raise: oklch(0.185 0.008 195);
+    --surface: oklch(0.205 0.009 195);
+    --line: oklch(0.320 0.012 195 / 0.55); --line-soft: oklch(0.320 0.012 195 / 0.28);
+    --text: oklch(0.940 0.005 195); --muted: oklch(0.680 0.012 195); --faint: oklch(0.540 0.012 195);
+    --teal: oklch(0.760 0.130 182); --gold: oklch(0.820 0.110 74); --gold-soft: oklch(0.820 0.110 74 / 0.16);
+    --red: oklch(0.700 0.150 25);
+    --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'Geist Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+    --gutter: clamp(1.25rem, 5vw, 6rem);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+       font-weight:300;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:74ch;margin:0 auto;padding:0 var(--gutter)}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+
+  /* hero */
+  header{padding:clamp(4rem,12vh,9rem) 0 3rem}
+  h1{font-size:clamp(2rem,5.4vw,3.4rem);line-height:1.06;letter-spacing:-.025em;
+     font-weight:600;margin:1.6rem 0 0;max-width:20ch}
+  h1 .dim{color:var(--muted);font-weight:300}
+  .lead{font-size:clamp(1.02rem,2vw,1.2rem);color:var(--muted);margin:1.6rem 0 0;max-width:58ch}
+  .byline{margin-top:2.4rem;font-family:var(--mono);font-size:12px;color:var(--faint);line-height:2}
+  .byline a{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
+  .byline a:hover{border-color:var(--teal)}
+
+  /* stat strip */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
+         background:var(--line-soft);border:1px solid var(--line-soft);margin:3.5rem 0 0}
+  .stat{background:var(--bg);padding:1.3rem 1.1rem}
+  .stat b{display:block;font-size:clamp(1.5rem,3.4vw,2rem);font-weight:600;letter-spacing:-.02em;
+          color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1}
+  .stat span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+             text-transform:uppercase;color:var(--faint);margin-top:.5rem}
+
+  section{padding:clamp(4rem,10vh,7rem) 0}
+  section .eyebrow{display:block;margin-bottom:.9rem}
+  h2{font-size:clamp(1.35rem,3vw,1.85rem);font-weight:600;letter-spacing:-.02em;margin:.7rem 0 0;max-width:24ch}
+  p{margin:1.1rem 0 0;color:var(--muted);max-width:64ch}
+  p strong{color:var(--text);font-weight:500}
+  .em{color:var(--gold)}
+
+  /* funnel */
+  .funnel{margin-top:2.5rem;border-top:1px solid var(--line-soft)}
+  .rung{display:grid;grid-template-columns:1fr;gap:.5rem;padding:1.15rem 0;border-bottom:1px solid var(--line-soft)}
+  .rung-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+  .rung-label{font-size:.95rem;color:var(--text);font-weight:400}
+  .rung-n{font-family:var(--mono);font-size:.9rem;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .bar{height:5px;background:var(--line-soft);overflow:hidden;border-radius:2px}
+  .bar i{display:block;height:100%;width:0;border-radius:2px;
+         background:linear-gradient(90deg,var(--teal),var(--gold));
+         transition:width 1.15s cubic-bezier(.16,.84,.36,1)}
+  .rung-why{font-size:.83rem;color:var(--faint);max-width:60ch}
+
+  /* cases */
+  .case{border:1px solid var(--line-soft);background:var(--bg-raise);padding:1.5rem;margin-top:1.5rem}
+  .case-h{display:flex;gap:.85rem;align-items:baseline;flex-wrap:wrap}
+  .case-n{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.14em}
+  .case-t{font-size:1.05rem;font-weight:500;color:var(--text)}
+  .case p{margin-top:.85rem;font-size:.94rem}
+  .ledger{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--line-soft)}
+  .led{font-family:var(--mono);font-size:12px}
+  .led u{display:block;text-decoration:none;color:var(--faint);font-size:10px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:.2rem}
+  .said{color:var(--red)}
+  .was{color:var(--teal)}
+  pre{font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--muted);
+      background:var(--bg);border:1px solid var(--line-soft);padding:.95rem 1.05rem;
+      margin-top:1.1rem;overflow-x:auto;border-radius:2px}
+  pre b{color:var(--gold);font-weight:500}
+
+  .pull{border-left:2px solid var(--gold);padding:.2rem 0 .2rem 1.15rem;margin-top:2rem;
+        font-size:1.05rem;color:var(--text);max-width:56ch}
+
+  footer{border-top:1px solid var(--line-soft);padding:3rem 0 4.5rem;
+         font-family:var(--mono);font-size:12px;color:var(--faint);line-height:2}
+  footer a{color:var(--teal);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,.84,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .bar i{transition:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="eyebrow">Javier Elías Crespo · AI Solutions Engineer</div>
+  <h1>What the system says, <span class="dim">and what the user sees.</span></h1>
+  <p class="lead">I built a job-search engine that reads 153 employer job boards through their own
+  APIs. Three times it told me something confidently, precisely wrong. Finding out why is the part
+  of the work I like most — so this page is those three, with the numbers.</p>
+
+  <div class="stats">
+    <div class="stat"><b data-count="153">0</b><span>employer boards</span></div>
+    <div class="stat"><b data-count="6162">0</b><span>listings, last run</span></div>
+    <div class="stat"><b data-count="178" data-suffix="s">0</b><span>seconds end to end</span></div>
+    <div class="stat"><b data-count="3">0</b><span>times it lied to me</span></div>
+  </div>
+
+  <div class="byline">
+    Puerto Rico · US citizen · fully bilingual English / Spanish<br>
+    <a href="https://javierxelias-svg.github.io">javierxelias-svg.github.io</a> ·
+    <a href="mailto:javierxelias@gmail.com">javierxelias@gmail.com</a>
+  </div>
+</header>
+
+<section class="wrap reveal">
+  <div class="eyebrow">01 · The shape</div>
+  <h2>Six thousand listings in, five out.</h2>
+  <p>Aggregators repost the same job with a fresh URL and a rounded-off salary. So the system
+  skips them and reads employers directly — Ashby, Greenhouse and Lever expose their own
+  posting APIs, which return the real range and the real location rules. Cheap filters run
+  first, expensive ones last, and it remembers everything it has already shown me so nothing
+  repeats.</p>
+
+  <div class="funnel">
+    <div class="rung"><div class="rung-top"><span class="rung-label">Fetched — 8 sources, 153 employer boards</span><span class="rung-n">6,162</span></div>
+      <div class="bar"><i data-w="100"></i></div>
+      <div class="rung-why">5,743 of those 6,162 come from employer boards, not job sites.</div></div>
+    <div class="rung"><div class="rung-top"><span class="rung-label">After the hard rules</span><span class="rung-n">1,679</span></div>
+      <div class="bar"><i data-w="27"></i></div>
+      <div class="rung-why">Not remote, region-locked, on-call, or below the pay floor. Rules I wrote, applied without mercy.</div></div>
+    <div class="rung"><div class="rung-top"><span class="rung-label">After deduping against the ledger</span><span class="rung-n">1,327</span></div>
+      <div class="bar"><i data-w="22"></i></div>
+      <div class="rung-why">Keyed on company and role, never URL — boards repost constantly with new links.</div></div>
+    <div class="rung"><div class="rung-top"><span class="rung-label">Scored, ranked, worth reading</span><span class="rung-n">63</span></div>
+      <div class="bar"><i data-w="8"></i></div>
+      <div class="rung-why">Only these get their full page fetched. Fetching is the slow part; don't pay it for a listing that already failed.</div></div>
+    <div class="rung"><div class="rung-top"><span class="rung-label">Opened and read by a human — me</span><span class="rung-n">5</span></div>
+      <div class="bar"><i data-w="4"></i></div>
+      <div class="rung-why">The machine narrows. A person decides. The next section is why that step is not optional.</div></div>
+  </div>
+</section>
+
+<section class="wrap reveal">
+  <div class="eyebrow">02 · The interesting part</div>
+  <h2>Three times it was confidently wrong.</h2>
+  <p>Every one of these was found the same way — <strong>by opening the source instead of
+  trusting my own output.</strong> None of them were visible in the data the system had.</p>
+
+  <div class="case">
+    <div class="case-h"><span class="case-n">CASE 01</span><span class="case-t">A salary that was 3× the real one</span></div>
+    <p>A role surfaced at <span class="em">$237,375</span>. The number looked wrong for the level, so
+    I opened the posting. It was <strong>OTE</strong> — on-target earnings, base plus commission.
+    The guaranteed base was $75,541–$92,428. Nothing in the feed said so; the figure was simply
+    presented as pay.</p>
+    <div class="ledger">
+      <span class="led"><u>system said</u><span class="said">$237,375</span></span>
+      <span class="led"><u>actually guaranteed</u><span class="was">$75,541</span></span>
+      <span class="led"><u>fix</u><span class="was">every figure is now base; OTE is labelled OTE</span></span>
+    </div>
+  </div>
+
+  <div class="case">
+    <div class="case-h"><span class="case-n">CASE 02</span><span class="case-t">Two pay tiers blended into one headline</span></div>
+    <p>An employer's own API returns <strong>two</strong> compensation tiers — one for expensive
+    metros, one for everyone else. Their public board displays a single blended range. A remote
+    candidate outside those metros reads a number they will not be offered. The gap between what
+    the system stores and what the user sees is not a bug in either; it is the seam where support
+    tickets are born.</p>
+<pre>compensationTiers: [
+  { title: "San Francisco, New York",  <b>$86,250 – $109,250</b> },
+  { title: "United States",            <b>$75,000 – $95,000</b>  }   <b>&larr; the one that applies to me</b>
+]
+compensationTierSummary: "$75,000 – $109,250"   <b>&larr; the one on the page</b></pre>
+    <div class="ledger">
+      <span class="led"><u>shown</u><span class="said">one blended range</span></span>
+      <span class="led"><u>published</u><span class="was">two tiers, in their own API</span></span>
+      <span class="led"><u>fix</u><span class="was">read the national tier, not the headline</span></span>
+    </div>
+  </div>
+
+  <div class="case">
+    <div class="case-h"><span class="case-n">CASE 03</span><span class="case-t">Ranked third. Broke both of my hard rules.</span></div>
+    <p>A role came back <strong>third out of sixty-three</strong> at $187,500, marked fully remote
+    and all base. I opened it. Hybrid, three days a week in an office, and paid on commission.
+    Two root causes, and <strong>neither was in the module I first blamed:</strong> the parser read
+    one "is this remote" field and ignored a contradicting one sitting beside it, and the pay
+    string it was handed had silently dropped the words "On Target Earnings" before it ever
+    arrived. The salary parser was correct the whole time. It was fed a lossy string.</p>
+    <div class="ledger">
+      <span class="led"><u>system said</u><span class="said">remote · $187,500 base · rank 3</span></span>
+      <span class="led"><u>posting said</u><span class="was">3 days in office · OTE</span></span>
+      <span class="led"><u>learned</u><span class="was">check what the function received before rewriting what it does</span></span>
+    </div>
+  </div>
+
+  <p class="pull">A correct parser fed a lossy string looks exactly like a broken parser. That one
+  cost me two hours and it is the most useful thing I learned all month.</p>
+</section>
+
+<section class="wrap reveal">
+  <div class="eyebrow">03 · The rule underneath</div>
+  <h2>It is not allowed to tell me something worked.</h2>
+  <p>The workspace this runs inside forbids the sentence <span class="em">"this should work."</span>
+  Nothing counts as done because it looks done — only when it has run and left a receipt on disk.
+  Every number on this page has a file behind it: the run log, the test output, the raw API
+  response. That constraint is the reason I caught all three of the above instead of shipping a
+  digest that quietly lied to me every morning.</p>
+  <p>It is also why the system has eighteen test files and why each of the three fixes above is
+  pinned by a regression test, so it cannot come back. <strong>Honesty enforced by the machine, not by
+  willpower.</strong></p>
+</section>
+
+<section class="wrap reveal">
+  <div class="eyebrow">04 · How this was built, plainly</div>
+  <h2>I direct the code. I don't hand-write it.</h2>
+  <p>I use Claude Code every day. I design what the system should do, I run it, I debug it when it
+  breaks, and I verify what it produces — which is how all three errors above were found. I am not
+  going to tell you I hand-wrote nine thousand lines of Python, because that is not what happened,
+  and you would find out in the first technical conversation.</p>
+  <p>What I will claim: I can take something complicated and make it make sense to someone who does
+  not want to learn it. Four years of doing exactly that — two as a butler at The St. Regis, two at
+  Optum explaining health insurance to people who were frightened and confused — and two years since
+  building the technical half. <strong>This page is a support ticket I opened against my own
+  system, three times, and closed.</strong></p>
+</section>
+
+<footer class="wrap">
+  <div class="eyebrow" style="margin-bottom:1.2rem">Javier Elías Crespo</div>
+  Puerto Rico · US citizen, no sponsorship required · fully bilingual English / Spanish<br>
+  <a href="https://javierxelias-svg.github.io">Portfolio</a> ·
+  <a href="https://javierxelias-svg.github.io/food-pantry-weekly-digest/">A working demo</a> ·
+  <a href="mailto:javierxelias@gmail.com">javierxelias@gmail.com</a><br>
+  <span style="color:var(--faint)">Every figure here is from a real run. Built in Claude Code, verified before shipping.</span>
+</footer>
+
+<script>
+(function(){
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      e.target.querySelectorAll('.bar i').forEach(function(b){
+        setTimeout(function(){ b.style.width = b.dataset.w + '%'; }, 120);
+      });
+      e.target.querySelectorAll('[data-count]').forEach(count);
+      io.unobserve(e.target);
+    });
+  }, {threshold:.16, rootMargin:'0px 0px -8% 0px'});
+
+  document.querySelectorAll('.reveal, header').forEach(function(el){ io.observe(el); });
+
+  function count(el){
+    var target = +el.dataset.count, sfx = el.dataset.suffix || '', t0 = null, dur = 1100;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches){
+      el.textContent = target.toLocaleString() + sfx; return;
+    }
+    function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts - t0)/dur, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * e).toLocaleString() + sfx;
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+})();
+</script>
+</body>
+</html>
