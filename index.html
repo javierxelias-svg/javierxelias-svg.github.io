@@ -18,7 +18,7 @@
     --line-soft: oklch(0.320 0.012 195 / 0.28);
     --text:      oklch(0.940 0.005 195);
     --muted:     oklch(0.680 0.012 195);
-    --faint:     oklch(0.540 0.012 195);
+    --faint:     oklch(0.610 0.012 195);
     /* teal — used with intention, never decoration */
     --teal:      oklch(0.760 0.130 182);
     /* golden hour — the single warm signature */
@@ -57,7 +57,7 @@
   }
 
   /* ============ HERO ============ */
-  .hero{ position:relative; padding-top:clamp(5rem,14vh,10rem); padding-bottom:clamp(4rem,12vh,8rem); }
+  .hero{ position:relative; padding-top:clamp(5rem,14vh,10rem); padding-bottom:clamp(1.5rem,5vh,4rem); }
   .hero__meta{ margin-bottom:2.4rem; }
   .hero h1{
     font-family:var(--serif); font-weight:600;
@@ -215,9 +215,31 @@
   .foot__links a:hover{ color:var(--text); border-color:var(--gold); }
   .foot__note{ font-family:var(--mono); font-size:0.74rem; color:var(--faint); line-height:1.6; max-width:34ch; letter-spacing:0.02em; }
 
+  /* ============ VITALS (CareerOS, last run) — sits in the horizon glow ============ */
+  .vitals{ position:relative; margin-top:2.2rem; }
+  .vitals__head{ display:flex; align-items:center; gap:0.55rem; font-family:var(--mono); font-size:0.72rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); }
+  .vitals__head .dot{ width:7px; height:7px; border-radius:50%; background:var(--teal); animation:pulse 2.6s ease-out infinite; }
+  .vitals__grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1.6rem 2rem; margin-top:1.4rem; }
+  @media(min-width:760px){ .vitals__grid{ grid-template-columns:repeat(4,1fr); } }
+  .vital b{ display:block; font-family:var(--serif); font-weight:600; letter-spacing:-0.03em; font-size:clamp(2rem,5vw,3.2rem); line-height:1; color:var(--text); font-variant-numeric:tabular-nums; }
+  .vital span{ display:block; margin-top:0.55rem; font-family:var(--mono); font-size:0.74rem; letter-spacing:0.04em; color:var(--faint); }
+  .vital:first-child b{ color:var(--gold); }
+
+  /* ============ STATUS: color tells the truth at a glance ============ */
+  .status.partial .dot{ background:var(--gold); }
+  .status.partial{ color:color-mix(in oklch, var(--gold) 70%, var(--faint)); }
+
+  /* ============ SHOT (real screenshot of the work) ============ */
+  .shot{ display:block; margin-top:1.6rem; max-width:620px; border-radius:12px; overflow:hidden;
+    border:1px solid var(--line); box-shadow:0 30px 60px -30px oklch(0 0 0 / 0.8), 0 0 0 1px oklch(1 0 0 / 0.02);
+    transform:translateY(0); transition:transform .5s cubic-bezier(.2,.7,.2,1), border-color .4s ease; }
+  .shot img{ display:block; width:100%; height:auto; }
+  .shot:hover{ transform:translateY(-4px); border-color:var(--gold); }
+
   @media(prefers-reduced-motion:reduce){
     html{ scroll-behavior:auto; }
-    .status.live .dot{ animation:none; }
+    .status.live .dot, .vitals__head .dot{ animation:none; }
+    .shot{ transition:none; }
   }
 </style>
 </head>
@@ -234,6 +256,15 @@
     <a href="https://github.com/javierxelias-svg" target="_blank" rel="noopener">GitHub</a>
   </nav>
   <div class="horizon" aria-hidden="true"></div>
+  <div class="vitals" aria-label="CareerOS, last run">
+    <div class="vitals__head"><span class="dot"></span>CareerOS · last run</div>
+    <div class="vitals__grid">
+      <div class="vital"><b data-count="11280">11,280</b><span>listings scanned</span></div>
+      <div class="vital"><b data-count="186">186</b><span>employer job boards</span></div>
+      <div class="vital"><b data-count="195">195</b><span>job pages read in full</span></div>
+      <div class="vital"><b>Daily</b><span>runs on its own</span></div>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -269,6 +300,7 @@
           <p class="item__what">A working demo of what I'd build for a nonprofit. It turns a food pantry's messy weekly numbers into a plain-English brief anyone can act on: what's stocked, what's critically low, and a ready-to-post ask to the community. Sample data, no real org's information; edit anything and the digest recomputes live.</p>
           <p class="item__decision">The whole point is legibility: <b>AI making a small organization's operations legible to the non-technical people who run it</b> — the exact thing years of service and sales taught me to do.</p>
           <div class="status live"><span class="dot"></span><a href="/food-pantry-demo/">Open the live demo →</a></div>
+          <a class="shot" href="/food-pantry-demo/" aria-label="Open the Food Pantry Weekly Digest demo"><img src="/assets/food-pantry.jpg" width="1200" height="760" loading="lazy" alt="The Food Pantry Weekly Digest: families served, donations, volunteer hours, a ready-to-post community ask, and what is running low."></a>
         </div>
       </article>
       <article class="item reveal">
@@ -287,7 +319,7 @@
           <h3 class="item__title">Web OS</h3>
           <p class="item__what">A web-design business encoded as software: a five-stage system (source → design → outreach → CRM → close) that finds businesses with weak sites, produces $10K-quality builds, and runs the sale. ~2,750 lines of Python across 21 scripts plus a Next.js build starter.</p>
           <p class="item__decision">The hard part wasn't scraping, it was <b>encoding judgment</b>: which leads are worth it, an explicit anti-slop design bar, and a verify-before-send gate added after an early run bounced ~17%.</p>
-          <div class="status"><span class="dot"></span>v1 · strategy since pivoted on its own retrospective</div>
+          <div class="status partial"><span class="dot"></span>v1 · strategy since pivoted on its own retrospective</div>
         </div>
       </article>
 
@@ -307,7 +339,7 @@
           <h3 class="item__title">2nd Brain OS</h3>
           <p class="item__what">A knowledge base a language model maintains as its own memory: an Obsidian vault where Claude Code is librarian and writer, with a three-tier context budget and a hand-written task router that answers any question in a capped number of reads.</p>
           <p class="item__decision">A ground-truth file the model is <b>forbidden to exceed</b>, and autonomous writes tagged unverified, so machine claims stay separable from human fact. 176 agent-authored pages, nightly backup.</p>
-          <div class="status"><span class="dot"></span>Knowledge layer live and compounding · scheduled-agent layer down and documented as such</div>
+          <div class="status partial"><span class="dot"></span>Knowledge layer live and compounding · scheduled-agent layer down and documented as such</div>
         </div>
       </article>
 
@@ -317,7 +349,7 @@
           <h3 class="item__title">AGG Glass — Inventory System</h3>
           <p class="item__what">A glass-fabrication company running entirely on memory — no inventory tracking of any kind — asked me to design one, unpaid. I worked from two client documents that contradicted each other, reconciled them into a single agreed spec, and designed a two-tab Google Sheets system: a master item database and a daily movements log.</p>
           <p class="item__decision">On-hand quantity is <b>never typed, it's derived from the movement ledger</b>, so the count can't disagree with its own history. Formulas over scripts on purpose: every rule is visible in the cell, so someone non-technical can own it without me around.</p>
-          <div class="status"><span class="dot"></span>Spec complete and agreed · build blocked on client sheet access · unpaid</div>
+          <div class="status partial"><span class="dot"></span>Spec complete and agreed · build blocked on client sheet access · unpaid</div>
         </div>
       </article>
 
@@ -399,5 +431,22 @@
   </div>
 </footer>
 
+<script>
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var els = document.querySelectorAll('.vital b[data-count]');
+  els.forEach(function(el){
+    var target = +el.dataset.count, t0 = null, dur = 1400;
+    function step(ts){
+      if(!t0) t0 = ts;
+      var k = Math.min(1, (ts - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(target * e).toLocaleString('en-US');
+      if (k < 1) requestAnimationFrame(step);
+    }
+    el.textContent = '0';
+    requestAnimationFrame(step);
+  });
+})();
+</script>
 </body>
 </html>
