@@ -10,28 +10,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: oklch(0.150 0.006 195); --bg-raise: oklch(0.185 0.008 195);
-    --surface: oklch(0.205 0.009 195);
-    --line: oklch(0.320 0.012 195 / 0.55); --line-soft: oklch(0.320 0.012 195 / 0.28);
-    --text: oklch(0.940 0.005 195); --muted: oklch(0.680 0.012 195); --faint: oklch(0.540 0.012 195);
-    --teal: oklch(0.760 0.130 182); --gold: oklch(0.820 0.110 74); --gold-soft: oklch(0.820 0.110 74 / 0.16);
-    --red: oklch(0.700 0.150 25);
+    --bg:#e9e8ee; --bg-raise:rgba(248,247,251,.80);
+    --line:rgba(23,22,28,.14); --line-soft:rgba(23,22,28,.10);
+    --text:#17161c; --muted:#4f4c59; --faint:#6e6b78;
+    --teal:#3a3fc4; --gold:#b5481f; --ember:#ff5a1f;
+    --red:#b23b3b;
     --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     --mono: 'Geist Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
     --gutter: clamp(1.25rem, 5vw, 6rem);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
-       font-weight:300;line-height:1.65;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:var(--bg) linear-gradient(180deg,#e9e8ee 0%,#efe3e4 45%,#f3d9c6 100%) fixed;color:var(--text);font-family:var(--sans);
+       font-weight:400;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .back{display:inline-block;margin-top:clamp(1.5rem,4vh,2.5rem);font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--teal);text-decoration:none;border-bottom:1px solid var(--line)}
+  .back:hover{border-color:var(--ember)}
   .wrap{max-width:74ch;margin:0 auto;padding:0 var(--gutter)}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
 
   /* hero */
-  header{padding:clamp(4rem,12vh,9rem) 0 3rem}
+  header{padding:0 var(--gutter) 3rem}
+  header .eyebrow{margin-top:clamp(3rem,9vh,6rem)}
   h1{font-size:clamp(2rem,5.4vw,3.4rem);line-height:1.06;letter-spacing:-.025em;
      font-weight:600;margin:1.6rem 0 0;max-width:20ch}
-  h1 .dim{color:var(--muted);font-weight:300}
+  h1 .dim{font-weight:300;background:linear-gradient(90deg,var(--teal),var(--ember));-webkit-background-clip:text;background-clip:text;color:transparent}
   .lead{font-size:clamp(1.02rem,2vw,1.2rem);color:var(--muted);margin:1.6rem 0 0;max-width:58ch}
   .byline{margin-top:2.4rem;font-family:var(--mono);font-size:12px;color:var(--faint);line-height:2}
   .byline a{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
@@ -39,10 +41,10 @@
 
   /* stat strip */
   .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
-         background:var(--line-soft);border:1px solid var(--line-soft);margin:3.5rem 0 0}
-  .stat{background:var(--bg);padding:1.3rem 1.1rem}
+         background:var(--line-soft);border:1px solid var(--line-soft);margin:3.5rem 0 0;border-radius:14px;overflow:hidden}
+  .stat{background:var(--bg-raise);padding:1.3rem 1.1rem}
   .stat b{display:block;font-size:clamp(1.5rem,3.4vw,2rem);font-weight:600;letter-spacing:-.02em;
-          color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1}
+          color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1}
   .stat span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
              text-transform:uppercase;color:var(--faint);margin-top:.5rem}
 
@@ -59,14 +61,14 @@
   .rung-top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
   .rung-label{font-size:.95rem;color:var(--text);font-weight:400}
   .rung-n{font-family:var(--mono);font-size:.9rem;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .bar{height:5px;background:var(--line-soft);overflow:hidden;border-radius:2px}
+  .bar{height:5px;background:rgba(23,22,28,.08);overflow:hidden;border-radius:2px}
   .bar i{display:block;height:100%;width:0;border-radius:2px;
          background:linear-gradient(90deg,var(--teal),var(--gold));
          transition:width 1.15s cubic-bezier(.16,.84,.36,1)}
   .rung-why{font-size:.83rem;color:var(--faint);max-width:60ch}
 
   /* cases */
-  .case{border:1px solid var(--line-soft);background:var(--bg-raise);padding:1.5rem;margin-top:1.5rem}
+  .case{border:1px solid rgba(255,255,255,.65);background:var(--bg-raise);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:1.5rem;margin-top:1.5rem;border-radius:18px;box-shadow:0 40px 90px -50px rgba(18,18,40,.45)}
   .case-h{display:flex;gap:.85rem;align-items:baseline;flex-wrap:wrap}
   .case-n{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.14em}
   .case-t{font-size:1.05rem;font-weight:500;color:var(--text)}
@@ -77,11 +79,11 @@
   .said{color:var(--red)}
   .was{color:var(--teal)}
   pre{font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--muted);
-      background:var(--bg);border:1px solid var(--line-soft);padding:.95rem 1.05rem;
-      margin-top:1.1rem;overflow-x:auto;border-radius:2px}
+      background:rgba(255,255,255,.6);border:1px solid var(--line-soft);padding:.95rem 1.05rem;
+      margin-top:1.1rem;overflow-x:auto;border-radius:10px}
   pre b{color:var(--gold);font-weight:500}
 
-  .pull{border-left:2px solid var(--gold);padding:.2rem 0 .2rem 1.15rem;margin-top:2rem;
+  .pull{border-left:2px solid var(--ember);padding:.2rem 0 .2rem 1.15rem;margin-top:2rem;
         font-size:1.05rem;color:var(--text);max-width:56ch}
 
   footer{border-top:1px solid var(--line-soft);padding:3rem 0 4.5rem;
@@ -101,6 +103,7 @@
 <body>
 
 <header class="wrap">
+  <a class="back" href="/">&larr; Back to the portfolio</a>
   <div class="eyebrow">Javier Elías Crespo · AI Solutions Engineer</div>
   <h1>What the system says, <span class="dim">and what the user sees.</span></h1>
   <p class="lead">I built a job-search engine that read 153 employer job boards through their own
@@ -236,8 +239,8 @@ compensationTierSummary: "$75,000 – $109,250"   <b>&larr; the one on the page<
 <footer class="wrap">
   <div class="eyebrow" style="margin-bottom:1.2rem">Javier Elías Crespo</div>
   Puerto Rico · US citizen, no sponsorship required · fully bilingual English / Spanish<br>
-  <a href="https://javierxelias-svg.github.io">Portfolio</a> ·
-  <a href="https://javierxelias-svg.github.io/food-pantry-weekly-digest/">A working demo</a> ·
+  <a href="/">&larr; Back to the portfolio</a> ·
+  <a href="/food-pantry-demo/">A working demo</a> ·
   <a href="mailto:javierxelias@gmail.com">javierxelias@gmail.com</a><br>
   <span style="color:var(--faint)">Every figure here is from a real run. Built in Claude Code, verified before shipping.</span>
 </footer>

@@ -5,447 +5,566 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Javier Elías Crespo — builder shipping real AI systems with Claude Code</title>
 <meta name="description" content="Self-taught builder shipping autonomous multi-agent systems, a business operating system, and a self-maintaining knowledge base with Claude Code. Built with real discipline, honest about what's broken.">
+<meta name="theme-color" content="#e9e8ee">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    /* near-black tinted toward teal — never #000 */
-    --bg:        oklch(0.150 0.006 195);
-    --bg-raise:  oklch(0.185 0.008 195);
-    --surface:   oklch(0.205 0.009 195);
-    --line:      oklch(0.320 0.012 195 / 0.55);
-    --line-soft: oklch(0.320 0.012 195 / 0.28);
-    --text:      oklch(0.940 0.005 195);
-    --muted:     oklch(0.680 0.012 195);
-    --faint:     oklch(0.610 0.012 195);
-    /* teal — used with intention, never decoration */
-    --teal:      oklch(0.760 0.130 182);
-    /* golden hour — the single warm signature */
-    --gold:      oklch(0.820 0.110 74);
-    --gold-soft: oklch(0.820 0.110 74 / 0.16);
+:root{
+  --text:#17161c; --muted:#4f4c59; --faint:#6e6b78; --line:rgba(23,22,28,.14); --line-soft:rgba(23,22,28,.08);
+  --blue:#3a3fc4; --ember:#ff5a1f; --ember-ink:#b5481f;
+  --serif:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --gutter:clamp(1.25rem,5vw,6rem); --night:0;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:#e9e8ee; scroll-behavior:smooth}
+body{margin:0;color:var(--text);font-family:var(--serif);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+#world{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;opacity:0;transition:opacity 1.2s ease;touch-action:pan-y;cursor:grab}
+.world-ready #world{opacity:1}
+.no-gl body{background:linear-gradient(180deg,#e9e8ee,#f3d9c6)}
+.page{position:relative;z-index:1;pointer-events:none}
+.page a,.page button,.card,.hero__copy{pointer-events:auto}
 
-    --serif: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --mono:  'Geist Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+.eyebrow,.fig{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);line-height:1.7}
+.fig,.card .fig{margin:0 0 1.1rem} .fig b{color:var(--text);font-weight:500}
 
-    --measure: 64ch;
-    --gutter: clamp(1.25rem, 5vw, 6rem);
-  }
+/* hero: over the dawn sky */
+.hero{min-height:100svh;display:flex;align-items:center;padding:clamp(5rem,12vh,8rem) var(--gutter) clamp(2rem,6vh,4rem)}
+.hero__copy{max-width:40rem}
+.hero h1{font-weight:600;font-size:clamp(2.6rem,7.4vw,5.6rem);line-height:.97;letter-spacing:-.035em;margin:1.6rem 0 0;max-width:13ch}
+.hero h1 .last{font-weight:300;background:linear-gradient(90deg,var(--blue),var(--ember));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero__lead{margin:1.6rem 0 0;max-width:30ch;font-size:clamp(1.1rem,2.2vw,1.45rem);line-height:1.38;letter-spacing:-.01em}
+.hero__made{margin:1.1rem 0 0;font-size:.95rem;line-height:1.5;color:var(--text)} .hero__made a{color:var(--ember-ink);border-bottom:1px solid currentColor;white-space:nowrap}
+.made__lead{font-size:1.05rem;line-height:1.55;color:var(--text)} .made__stats{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--ember-ink);margin:.4rem 0 1rem}
+.made__k{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:1.4rem 0 .5rem}
+.made__bugs{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.9rem 1.6rem}
+.made__bugs li{font-size:.9rem;line-height:1.5;color:var(--muted)} .made__bugs b{display:block;color:var(--text);font-weight:600}
+.made__close{margin-top:1.3rem;font-style:italic;color:var(--text)}
+.hero__place{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:1.4rem}
+.hero__links{display:flex;flex-wrap:wrap;gap:1rem 2rem;margin-top:1.8rem;font-family:var(--mono);font-size:.84rem}
+.hero__links a{border-bottom:1px solid var(--line);padding-bottom:2px}
+.hero__links a:hover{border-color:var(--ember)}
+.hero__meta{margin:0;color:var(--muted)}
+.vitals{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid var(--line)}
+.vitals__head{display:flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink)}
+.vitals__head .dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.vitals__grid{display:grid;grid-template-columns:repeat(4,auto);gap:1rem 2rem;margin-top:1rem;justify-content:start}
+.vital b{display:block;font-weight:600;letter-spacing:-.03em;font-size:clamp(1.5rem,3.4vw,2.3rem);line-height:1;font-variant-numeric:tabular-nums}
+.vital:first-child b{color:var(--ember)}
+.vital span{display:block;margin-top:.4rem;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.scrollhint{margin-top:2.2rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
 
-  *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:var(--serif);
-    font-weight:400;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-    overflow-x:hidden;
-  }
-  ::selection{ background:var(--gold-soft); color:var(--text); }
-  a{ color:inherit; text-decoration:none; }
+/* chapters: one per stop on the journey */
+.chapter{min-height:165vh;display:flex;align-items:center;padding:0 var(--gutter)}
+.chapter.right{justify-content:flex-end}
+.chapter.center{justify-content:center}
+.card{max-width:34rem;padding:clamp(1.4rem,3vw,2.3rem);border-radius:18px;
+  background:rgba(248,247,251,.80);-webkit-backdrop-filter:blur(16px) saturate(1.15);backdrop-filter:blur(16px) saturate(1.15);
+  border:1px solid rgba(255,255,255,.65);box-shadow:0 40px 90px -50px rgba(18,18,40,.55)}
+.card h2,.card h3{font-weight:600;letter-spacing:-.02em;line-height:1.05;margin:0}
+.item__title,.card h3{font-size:clamp(1.55rem,3vw,2.1rem)}
+.featured h3{font-size:clamp(1.7rem,3.6vw,2.5rem)}
+.card p{margin:.85rem 0 0;font-size:1rem;line-height:1.58}
+.card .fig + h3,.card .fig + .eyebrow{margin-top:0}
+.item__decision,.decision{color:var(--muted)} .card b{font-weight:600}
+.featured__body p{margin:.85rem 0 0}
+.closer{margin-top:1.2rem!important;padding-top:1rem;border-top:1px solid var(--line-soft);font-size:1.08rem!important;line-height:1.4!important}
+.closer .em{color:var(--ember-ink)}
+.featured .eyebrow{color:var(--ember-ink)}
+.item__title a{border-bottom:2px solid rgba(255,90,31,.25)} .item__title a:hover{border-color:var(--ember)}
+.story{margin-top:1rem;border-top:1px solid var(--line-soft);padding-top:.8rem}
+.story summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ember-ink)}
+.story summary::-webkit-details-marker{display:none}
+.story summary::before{content:'+ '}.story[open] summary::before{content:'– '}
+.story dl{margin:.7rem 0 0;display:grid;gap:.55rem}
+.story dt{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.story dd{margin:.1rem 0 0;font-size:.92rem;line-height:1.5;color:var(--muted)}
+.story dd.symbol{color:var(--text);font-style:italic}
+.status{margin-top:1.1rem;display:flex;align-items:flex-start;gap:.55rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.03em;color:var(--faint)}
+.status .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none;margin-top:.38rem}
+.status.live,.status.live a{color:var(--blue)} .status.live .dot{background:var(--blue)}
+.status.partial{color:var(--ember-ink)} .status.partial .dot{background:var(--ember)}
+.status a:hover{text-decoration:underline}
+.shot{display:block;margin-top:1.2rem;border-radius:10px;overflow:hidden;border:1px solid var(--line);transition:transform .4s ease}
+.shot img{display:block;width:100%;height:auto} .shot:hover{transform:translateY(-3px)}
 
-  .wrap{ max-width:1180px; margin:0 auto; padding-inline:var(--gutter); }
+/* night: the rest, over the lit island */
+.night{min-height:auto;padding-top:95vh;padding-bottom:12vh;flex-direction:column;align-items:stretch;gap:1.4rem}
+.night .card{max-width:1080px;width:100%;margin:0 auto}
+.sec-head{display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.3rem}
+.sec-head .idx{font-family:var(--mono);font-size:.7rem;color:var(--blue)}
+.sec-head h2{font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.build{display:grid;gap:1.4rem} @media(min-width:760px){.build{grid-template-columns:repeat(3,1fr);gap:2.2rem}}
+.build__k{font-weight:600!important;margin:0!important} .build__k .mk{color:var(--blue);font-family:var(--mono);margin-right:.4rem}
+.build p{color:var(--muted)}
+.secondary{display:grid;gap:1.4rem} @media(min-width:720px){.secondary{grid-template-columns:1fr 1fr;gap:2.4rem}}
+.mini__title{font-weight:600;font-size:1.12rem} .mini__title .tag{font-family:var(--mono);font-size:.68rem;color:var(--faint);margin-left:.5rem}
+.mini p{color:var(--muted);font-size:.96rem} .mini__note a{pointer-events:auto;border-bottom:1px solid var(--line)} .mini__note{font-family:var(--mono);font-size:.7rem!important;color:var(--faint)!important}
+.certs{display:flex;flex-wrap:wrap;gap:.8rem} .cert{font-family:var(--mono);font-size:.8rem;border:1px solid var(--line);border-radius:100px;padding:.5rem 1rem}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1.4rem;align-items:flex-end}
+.foot__links{display:flex;gap:1.4rem;font-family:var(--mono);font-size:.84rem} .foot__links a{border-bottom:1px solid var(--line)}
+.foot__note{font-family:var(--mono);font-size:.72rem;color:var(--faint);max-width:34ch;margin:0}
+.reveal{opacity:1}
 
-  /* --- mono label system --- */
-  .eyebrow{
-    font-family:var(--mono); font-weight:500; font-size:0.72rem;
-    letter-spacing:0.22em; text-transform:uppercase; color:var(--faint);
-  }
+.controls{position:fixed;z-index:3;right:clamp(.8rem,2vw,1.4rem);bottom:clamp(.8rem,2vw,1.4rem);display:flex;gap:.5rem}
+.motion,.sound,.lang,.drums,.help{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text);background:rgba(248,247,251,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(23,22,28,.12);border-radius:100px;padding:.55rem .95rem;cursor:pointer}
+.motion,.sound,.lang,.drums,.help{display:inline-flex;align-items:center;gap:.5em;box-shadow:0 6px 18px -8px rgba(23,22,28,.45),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.motion:hover,.sound:hover,.lang:hover,.drums:hover,.help:hover{transform:translateY(-1px);border-color:rgba(255,90,31,.55);box-shadow:0 10px 22px -8px rgba(23,22,28,.5),inset 0 1px 0 rgba(255,255,255,.7)}
+.motion:active,.sound:active,.lang:active,.drums:active,.help:active{transform:scale(.96)}
+.motion:focus-visible,.sound:focus-visible,.lang:focus-visible,.drums:focus-visible,.help:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+/* a real on/off switch, so it reads as something you press */
+.motion::before,.sound::before,.drums::before{content:"";flex:none;width:1.9em;height:1.1em;border-radius:1em;background:radial-gradient(circle at 30% 50%,#fff .36em,transparent .4em),rgba(23,22,28,.28);transition:background .2s}
+.motion[aria-pressed="true"]::before,.sound[aria-pressed="true"]::before,.drums[aria-pressed="true"]::before{background:radial-gradient(circle at 70% 50%,#fff .36em,transparent .4em),var(--ember)}
+.lang::before{content:"";flex:none;width:1em;height:1em;border:1.5px solid currentColor;border-radius:50%;box-sizing:border-box;background:linear-gradient(currentColor,currentColor) center/100% 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 100% no-repeat}
+@keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-3px);box-shadow:0 0 0 4px rgba(255,90,31,.25),0 10px 22px -8px rgba(23,22,28,.5)}}
+.controls.nudge button{animation:nudge 1.1s ease-in-out 3}
+@media(prefers-reduced-motion:reduce){.controls.nudge button{animation:none}}
+/* the opening map: where Puerto Rico is */
+#locator-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,#e9e8ee 0%,#efe3e4 60%,#f3d9c6 100%)}
+#locator{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,.4) 28%,#000 52%);mask-image:linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,.4) 28%,#000 52%)}
+.where{position:fixed;left:0;top:0;z-index:0;pointer-events:none;display:grid;gap:.3rem;max-width:20rem;padding:.8rem .95rem;border-radius:12px;
+  background:rgba(248,247,251,.84);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(23,22,28,.1);
+  font-family:var(--mono);font-size:.7rem;line-height:1.5;color:var(--text);will-change:transform}
+.where:not(.placed){visibility:hidden}
+html[lang="es"] .hero h1{max-width:17ch;font-size:clamp(2.3rem,6vw,4.5rem)}
+.where__k{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ember-ink)}
+.calado{height:16px;margin:-.4rem 0 1.2rem;opacity:.22;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath fill='%233a3fc4' fill-rule='evenodd' d='M0 0h16v16H0zM8 3a5 5 0 1 0 0 10A5 5 0 0 0 8 3z'/%3E%3C/svg%3E") repeat-x}
+.hint{position:fixed;z-index:2;left:clamp(.8rem,2vw,1.4rem);bottom:clamp(.8rem,2vw,1.4rem);font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text);pointer-events:none;background:rgba(248,247,251,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(23,22,28,.1);border-radius:100px;padding:.55rem .95rem}
 
-  /* ============ HERO ============ */
-  .hero{ position:relative; padding-top:clamp(5rem,14vh,10rem); padding-bottom:clamp(1.5rem,5vh,4rem); }
-  .hero__meta{ margin-bottom:2.4rem; }
-  .hero h1{
-    font-family:var(--serif); font-weight:600;
-    font-size:clamp(2.7rem, 8vw, 5.6rem);
-    line-height:0.98; letter-spacing:-0.03em; margin:0;
-    max-width:14ch;
-  }
-  .hero h1 .last{ color:var(--muted); font-weight:300; }
-  .hero__lead{
-    margin:1.8rem 0 0; max-width:30ch;
-    font-size:clamp(1.15rem, 2.6vw, 1.6rem);
-    font-weight:400; line-height:1.35; color:var(--text);
-    letter-spacing:-0.01em;
-  }
-  .hero__place{
-    font-family:var(--mono); font-size:0.8rem; color:var(--faint);
-    margin-top:1.6rem; letter-spacing:0.03em;
-  }
-  .hero__links{
-    display:flex; flex-wrap:wrap; gap:1.6rem 2.2rem; margin-top:2.6rem;
-    font-family:var(--mono); font-size:0.85rem; letter-spacing:0.02em;
-  }
-  .hero__links a{
-    color:var(--muted); padding-bottom:3px;
-    border-bottom:1px solid var(--line-soft); transition:color .35s ease, border-color .35s ease;
-  }
-  .hero__links a:hover{ color:var(--text); border-color:var(--gold); }
-
-  /* golden-hour horizon — the signature. One instance. */
-  .horizon{
-    position:relative; height:1px; margin-top:clamp(4rem,10vh,7rem);
-    background:linear-gradient(90deg, transparent, var(--gold) 22%, var(--gold) 60%, transparent);
-    opacity:0.55;
-  }
-  .horizon::after{
-    content:""; position:absolute; left:0; right:0; top:1px; height:140px;
-    background:linear-gradient(180deg, var(--gold-soft), transparent 78%);
-    pointer-events:none;
-  }
-
-  /* ============ SECTION SCAFFOLD ============ */
-  section{ padding-block:clamp(4rem,10vh,7.5rem); }
-  .sec-head{ display:flex; align-items:baseline; gap:1rem; margin-bottom:2.8rem; }
-  .sec-head .idx{ font-family:var(--mono); font-size:0.72rem; color:var(--teal); letter-spacing:0.1em; }
-  .sec-head h2{
-    font-family:var(--serif); font-weight:500; font-size:clamp(0.95rem,1.4vw,1.05rem);
-    letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); margin:0;
-  }
-
-  /* ============ ABOUT ============ */
-  .about p{
-    max-width:var(--measure); font-size:clamp(1.15rem,2.2vw,1.45rem);
-    line-height:1.5; font-weight:400; letter-spacing:-0.01em; margin:0 0 1.2rem;
-  }
-  .about p:last-child{ margin-bottom:0; color:var(--muted); }
-  .about .glow{ color:var(--gold); }
-
-  /* ============ FEATURED (meta) CARD ============ */
-  .featured{
-    position:relative;
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:clamp(1.8rem,4vw,3.2rem);
-    background:
-      linear-gradient(180deg, var(--gold-soft), transparent 40%),
-      var(--bg-raise);
-    overflow:hidden;
-  }
-  .featured .eyebrow{ color:var(--gold); }
-  .featured h3{
-    font-family:var(--serif); font-weight:600; letter-spacing:-0.02em;
-    font-size:clamp(1.8rem,4.5vw,3rem); line-height:1.02; margin:1rem 0 0;
-    max-width:16ch;
-  }
-  .featured__body{
-    display:grid; gap:2rem 3.5rem; margin-top:2rem;
-    grid-template-columns:1fr;
-  }
-  @media(min-width:760px){ .featured__body{ grid-template-columns:1.15fr 0.85fr; } }
-  .featured__body p{ margin:0; max-width:46ch; font-size:1.02rem; line-height:1.6; color:var(--text); }
-  .featured__body .decision{ color:var(--muted); }
-  .featured__body .decision b{ color:var(--text); font-weight:600; }
-  .closer{
-    margin-top:2.4rem; padding-top:1.8rem; border-top:1px solid var(--line-soft);
-    font-family:var(--serif); font-weight:400; font-style:normal;
-    font-size:clamp(1.05rem,2.4vw,1.4rem); line-height:1.35; letter-spacing:-0.01em;
-    color:var(--text); max-width:34ch;
-  }
-  .closer .em{ color:var(--gold); }
-
-  /* ============ WORK LIST (editorial, asymmetric) ============ */
-  .work{ border-top:1px solid var(--line-soft); margin-top:3rem; }
-  .item{
-    display:grid; grid-template-columns:1fr; gap:0.6rem 3rem;
-    padding-block:clamp(2rem,5vw,3rem);
-    border-bottom:1px solid var(--line-soft);
-  }
-  @media(min-width:820px){
-    .item{ grid-template-columns:4.5rem 1fr; align-items:start; }
-  }
-  .item__num{ font-family:var(--mono); font-size:0.78rem; color:var(--faint); padding-top:0.55rem; }
-  .item__title{
-    font-family:var(--serif); font-weight:600; letter-spacing:-0.02em;
-    font-size:clamp(1.5rem,3.4vw,2.15rem); line-height:1.05; margin:0;
-  }
-  .item__title a{ color:inherit; text-decoration:none; border-bottom:2px solid var(--gold-soft); transition:border-color .3s ease; }
-  .item__title a:hover{ border-color:var(--gold); }
-  .status a{ color:inherit; text-decoration:none; border-bottom:1px solid transparent; transition:border-color .3s ease; }
-  .status a:hover{ border-color:var(--teal); }
-  .item__what{ margin:0.9rem 0 0; max-width:56ch; font-size:1.03rem; line-height:1.55; color:var(--text); }
-  .item__decision{ margin:0.7rem 0 0; max-width:56ch; font-size:0.98rem; line-height:1.55; color:var(--muted); }
-  .item__decision b{ color:var(--text); font-weight:600; }
-  .status{
-    margin-top:1.1rem; display:inline-flex; align-items:center; gap:0.55rem;
-    font-family:var(--mono); font-size:0.76rem; letter-spacing:0.04em; color:var(--faint);
-  }
-  .status .dot{ width:7px; height:7px; border-radius:50%; background:var(--faint); flex:none; }
-  .status.live .dot{ background:var(--teal); box-shadow:0 0 0 0 var(--teal); animation:pulse 2.6s ease-out infinite; }
-  .status.live{ color:var(--teal); }
-  @keyframes pulse{
-    0%{ box-shadow:0 0 0 0 oklch(0.760 0.130 182 / 0.5); }
-    70%{ box-shadow:0 0 0 7px oklch(0.760 0.130 182 / 0); }
-    100%{ box-shadow:0 0 0 0 oklch(0.760 0.130 182 / 0); }
-  }
-
-  /* secondary compact row */
-  .secondary{ margin-top:2.6rem; display:grid; gap:1.4rem; }
-  @media(min-width:720px){ .secondary{ grid-template-columns:1fr 1fr; gap:1.4rem 3rem; } }
-  .mini__title{ font-family:var(--serif); font-weight:600; font-size:1.15rem; letter-spacing:-0.01em; }
-  .mini__title .tag{ font-family:var(--mono); font-size:0.7rem; color:var(--faint); margin-left:0.6rem; letter-spacing:0.04em; }
-  .mini p{ margin:0.6rem 0 0; color:var(--muted); font-size:0.96rem; line-height:1.55; max-width:50ch; }
-  .mini__note{ font-family:var(--mono); font-size:0.72rem !important; color:var(--faint); letter-spacing:0.03em; margin-top:0.8rem !important; }
-
-  /* ============ HOW I BUILD ============ */
-  .build{ display:grid; gap:2.2rem; }
-  @media(min-width:760px){ .build{ grid-template-columns:repeat(3,1fr); gap:3rem; } }
-  .build__k{ font-family:var(--serif); font-weight:600; font-size:1.2rem; letter-spacing:-0.01em; margin:0 0 0.6rem; }
-  .build__k .mk{ color:var(--teal); font-family:var(--mono); font-size:0.9rem; margin-right:0.5rem; }
-  .build p{ margin:0; color:var(--muted); font-size:0.98rem; line-height:1.55; max-width:40ch; }
-
-  /* ============ CERTS ============ */
-  .certs{ display:flex; flex-wrap:wrap; gap:1rem 1.2rem; }
-  .cert{
-    font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em; color:var(--muted);
-    border:1px solid var(--line-soft); border-radius:100px; padding:0.55rem 1.1rem;
-  }
-  .cert b{ color:var(--text); font-weight:500; }
-  .cert .score{ color:var(--gold); }
-
-  /* ============ FOOTER ============ */
-  footer{ border-top:1px solid var(--line-soft); padding-block:clamp(3rem,7vh,5rem); }
-  .foot{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2rem; align-items:flex-end; }
-  .foot__links{ display:flex; flex-wrap:wrap; gap:1.4rem; font-family:var(--mono); font-size:0.85rem; }
-  .foot__links a{ color:var(--muted); border-bottom:1px solid var(--line-soft); padding-bottom:2px; transition:color .3s, border-color .3s; }
-  .foot__links a:hover{ color:var(--text); border-color:var(--gold); }
-  .foot__note{ font-family:var(--mono); font-size:0.74rem; color:var(--faint); line-height:1.6; max-width:34ch; letter-spacing:0.02em; }
-
-  /* ============ VITALS (CareerOS, last run) — sits in the horizon glow ============ */
-  .vitals{ position:relative; margin-top:2.2rem; }
-  .vitals__head{ display:flex; align-items:center; gap:0.55rem; font-family:var(--mono); font-size:0.72rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); }
-  .vitals__head .dot{ width:7px; height:7px; border-radius:50%; background:var(--teal); animation:pulse 2.6s ease-out infinite; }
-  .vitals__grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1.6rem 2rem; margin-top:1.4rem; }
-  @media(min-width:760px){ .vitals__grid{ grid-template-columns:repeat(4,1fr); } }
-  .vital b{ display:block; font-family:var(--serif); font-weight:600; letter-spacing:-0.03em; font-size:clamp(2rem,5vw,3.2rem); line-height:1; color:var(--text); font-variant-numeric:tabular-nums; }
-  .vital span{ display:block; margin-top:0.55rem; font-family:var(--mono); font-size:0.74rem; letter-spacing:0.04em; color:var(--faint); }
-  .vital:first-child b{ color:var(--gold); }
-
-  /* ============ STATUS: color tells the truth at a glance ============ */
-  .status.partial .dot{ background:var(--gold); }
-  .status.partial{ color:color-mix(in oklch, var(--gold) 70%, var(--faint)); }
-
-  /* ============ SHOT (real screenshot of the work) ============ */
-  .shot{ display:block; margin-top:1.6rem; max-width:620px; border-radius:12px; overflow:hidden;
-    border:1px solid var(--line); box-shadow:0 30px 60px -30px oklch(0 0 0 / 0.8), 0 0 0 1px oklch(1 0 0 / 0.02);
-    transform:translateY(0); transition:transform .5s cubic-bezier(.2,.7,.2,1), border-color .4s ease; }
-  .shot img{ display:block; width:100%; height:auto; }
-  .shot:hover{ transform:translateY(-4px); border-color:var(--gold); }
-
-  @media(prefers-reduced-motion:reduce){
-    html{ scroll-behavior:auto; }
-    .status.live .dot, .vitals__head .dot{ animation:none; }
-    .shot{ transition:none; }
-  }
+/* the night tour: no cards, only the island */
+.tour__end{display:flex;flex-direction:column;align-items:center;gap:1.1rem}
+.tour__made{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(1.1rem,2.6vw,1.6rem);letter-spacing:-.01em;text-transform:none;color:#f3f1ff;text-shadow:0 2px 18px rgba(10,12,40,.9)}
+.tour__hint{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#f3f1ff;opacity:.85;text-shadow:0 1px 10px rgba(10,12,40,.9)}
+.place-tip{position:fixed;left:0;top:0;z-index:5;pointer-events:none;display:flex;flex-direction:column;gap:.15rem;padding:.5rem .75rem;border-radius:9px;
+  background:rgba(243,241,255,.95);color:#17161c;box-shadow:0 8px 30px -8px rgba(10,12,40,.6);font-family:var(--mono);will-change:transform}
+.place-tip b{font-family:var(--serif);font-weight:600;font-size:.95rem;letter-spacing:-.01em}
+.place-tip span{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember-ink)}
+.place-tip{max-width:min(19rem,calc(100vw - 32px))}
+.place-tip p{margin:.1rem 0 .1rem;font-family:var(--serif);font-size:.8rem;line-height:1.42;color:#2b2933}
+.explore-btn{pointer-events:auto;font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#17161c;background:#f3f1ff;border:0;border-radius:100px;padding:.9rem 1.5rem;cursor:pointer;box-shadow:0 10px 40px -10px rgba(120,140,255,.7)}
+.explore-btn:hover{background:#fff}
+.explore-ui{position:fixed;z-index:4;left:50%;bottom:calc(env(safe-area-inset-bottom, 0px) + 1.2rem);transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:.7rem;width:max-content;max-width:calc(100vw - 32px)}
+.explore-help{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#f3f1ff;text-align:center;text-shadow:0 1px 10px rgba(10,12,40,.9)}
+.explore-row{display:flex;gap:.5rem}
+.explore-row button{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:#17161c;background:rgba(243,241,255,.92);border:0;border-radius:100px;min-width:2.9rem;height:2.9rem;padding:0 1rem;cursor:pointer}
+.explore-row .explore-zoom{font-size:1.2rem;padding:0}
+.explore-row .explore-turn[aria-pressed="true"]{background:#ff5a1f;color:#fff}
+@media(min-width:821px){.explore-ui{bottom:calc(env(safe-area-inset-bottom, 0px) + 4.6rem)}}
+.place-tip.sheet{left:16px;right:16px;top:calc(env(safe-area-inset-top, 0px) + 3.6rem);transform:none!important;max-width:none;padding:.8rem 1rem}
+.place-tip.sheet p{font-size:.88rem}
+@media(max-width:820px){.explore-row{flex-wrap:wrap;justify-content:center;gap:.4rem}.explore-row button{height:2.6rem;min-width:2.6rem;padding:0 .8rem;font-size:.7rem}.explore-help{font-size:.6rem}}
+html.exploring{overflow:hidden}
+html.exploring .page,html.exploring .hint{visibility:hidden}
+html.exploring .explore-ui{display:flex}
+html.exploring #world{touch-action:none;cursor:grab}
+.tour{min-height:85vh;position:relative}
+.tour--end{min-height:100vh}
+.tour__place{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;font-family:var(--mono);font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;
+  color:#f3f1ff;text-shadow:0 1px 12px rgba(10,12,40,.8);white-space:nowrap}
+.tour__end{position:absolute;left:0;right:0;bottom:7vh;text-align:center;margin:0;padding:0 1rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#f3f1ff;text-shadow:0 1px 12px rgba(10,12,40,.8)}
+.tour__end a{pointer-events:auto;border-bottom:1px solid rgba(243,241,255,.5)}
+.foot__credit{flex-basis:100%;margin:0;font-family:var(--mono);font-size:.64rem;color:var(--faint);order:3}
+.foot__credit a{border-bottom:1px solid var(--line)}
+@media(max-width:820px){
+  .chapter,.chapter.right{justify-content:center;align-items:flex-end;min-height:175vh;padding-bottom:12vh}
+  .card{max-width:100%}
+  .vitals__grid{grid-template-columns:repeat(2,auto)}
+  .hero{align-items:flex-end;padding-top:52vh}
+  .hint{display:none}
+  #locator{-webkit-mask-image:linear-gradient(180deg,#000 40%,rgba(0,0,0,.35) 58%);mask-image:linear-gradient(180deg,#000 40%,rgba(0,0,0,.35) 58%)}
+  .where{font-size:.62rem;line-height:1.45;max-width:none;width:calc(100vw - 32px);padding:.65rem .85rem;gap:.12rem;border-radius:10px}
+  .controls{bottom:auto;top:calc(env(safe-area-inset-top, 0px) + .75rem);right:16px;gap:.35rem}
+  .motion,.sound,.lang,.drums,.help{font-size:.56rem;letter-spacing:.08em;padding:.45rem .6rem;gap:.4em}
+  .hero{padding-top:56vh;padding-bottom:3rem}
+  .hero__copy{background:rgba(248,247,251,.84);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(23,22,28,.08);border-radius:18px;padding:1.5rem 1.25rem 1.6rem;box-shadow:0 20px 50px -30px rgba(23,22,28,.5)}
+  .hero h1{margin-top:1.1rem}
+  .hero__lead{margin-top:1.3rem;line-height:1.5}
+  .hero__made{margin-top:1.3rem} .hero__place{margin-top:1.3rem}
+  .hero__links{row-gap:.9rem}
+  .card:has(.certs) .sec-head{justify-content:center} .certs{justify-content:center}
+  .foot{flex-direction:column;align-items:center;text-align:center;gap:1rem} .foot__links{justify-content:center}
+  .foot__note,.foot__credit{max-width:30ch;margin:0 auto}
+}
+/* the first-visit guide: three lines, never in the way */
+.guide{position:fixed;z-index:4;left:clamp(.8rem,2vw,1.4rem);bottom:clamp(.8rem,2vw,1.4rem);width:min(22rem,calc(100vw - 32px));box-sizing:border-box;padding:1.1rem 1.15rem 1rem;border-radius:16px;
+  background:rgba(248,247,251,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(23,22,28,.1);box-shadow:0 24px 60px -24px rgba(23,22,28,.55);
+  opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}
+.guide.in{opacity:1;transform:none}
+.guide__h{margin:0 0 .7rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ember-ink)}
+.guide__list{list-style:none;margin:0;padding:0;display:grid;gap:.7rem}
+.guide__list li{display:flex;gap:.7rem;align-items:flex-start;font-size:.88rem;line-height:1.45;color:var(--muted)} .guide__list b{color:var(--text);font-weight:600}
+.guide__list svg{flex:none;width:1.25rem;height:1.25rem;margin-top:.05rem;fill:none;stroke:var(--ember);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.guide__ok{margin-top:.95rem;width:100%;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:#17161c;border:0;border-radius:100px;padding:.7rem 1rem;cursor:pointer}
+.guide__ok:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+html.guide-open .hint,html.exploring .guide{visibility:hidden}
+@media(hover:none){.g-mouse{display:none}} @media(hover:hover){.g-touch{display:none}}
+@media(max-width:820px){.g-wide{display:none} .guide{left:16px;bottom:calc(env(safe-area-inset-bottom, 0px) + 16px)}} @media(min-width:821px){.g-narrow{display:none}}
+.help{justify-content:center;min-width:2.3rem;font-weight:700}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto} .guide{transition:opacity .2s}}
 </style>
 </head>
 <body>
+<canvas id="world" aria-hidden="true"></canvas>
+<div id="locator-bg" aria-hidden="true"></div>
+<canvas id="locator" aria-hidden="true"></canvas>
+<div class="where">
+  <span class="where__k" data-i="t-wk">Where I'm from</span>
+  <span data-i="t-w1">US citizen · no visa, no sponsorship</span>
+  <span data-i="t-w2">New York time Mar&ndash;Nov · 1 h ahead in winter</span>
+  <span data-i="t-w3">100 &times; 35 miles · 3.2 million people</span>
+</div>
+<div class="controls nudge">
+  <button class="help" type="button" aria-label="How this works">?</button>
+  <button class="lang" type="button" aria-label="Ver en español">Español</button>
+  <button class="sound" type="button" aria-pressed="false">Coquíes off</button>
+  <button class="drums" type="button" aria-pressed="false">Plena off</button>
+</div>
+<div class="place-tip" aria-live="polite" hidden><b></b><p></p><span></span></div>
+<div class="explore-ui" aria-label="Explore controls">
+  <span class="explore-help" data-i="t-exph">Drag to move · press Turn, then drag to rotate · pinch or scroll to zoom · tap anything</span>
+  <div class="explore-row">
+    <button class="explore-zoom" type="button" data-z="out" aria-label="Zoom out">−</button>
+    <button class="explore-zoom" type="button" data-z="in" aria-label="Zoom in">+</button>
+    <button class="explore-turn" type="button" aria-pressed="false" data-i="t-turn">⟳ Turn</button>
+    <button class="explore-day" type="button">Night</button>
+    <button class="explore-reset" type="button" data-i="t-expr">Reset</button>
+    <button class="explore-done" type="button" data-i="t-expd">Done</button>
+  </div>
+</div>
+<div class="guide" role="dialog" aria-labelledby="guide-h" hidden>
+  <p class="guide__h" id="guide-h" data-i="t-gd-h">How this works</p>
+  <ul class="guide__list">
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v14M6 12l6 6 6-6"/></svg><span data-i="t-gd-1"><b>Scroll</b> to travel across Puerto Rico, one building per project.</span></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></svg><span class="g-mouse" data-i="t-gd-2m"><b>Point at anything</b> and it tells you what it is. Click a building to open its project.</span><span class="g-touch" data-i="t-gd-2t"><b>Tap anything</b> and it tells you what it is.</span></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span class="g-wide" data-i="t-gd-3w"><b>The buttons</b> at the bottom right: hear coquíes and plena, switch to Spanish.</span><span class="g-narrow" data-i="t-gd-3n"><b>The buttons</b> up top: hear coquíes and plena, switch to Spanish.</span></li>
+  </ul>
+  <button class="guide__ok" type="button" data-i="t-gd-ok">Got it</button>
+</div>
+<div class="hint" data-i="t-hint">Scroll to travel · drag to look · point at anything</div>
 
-<header class="hero wrap">
-  <div class="hero__meta eyebrow">Javier Elías Crespo — AI Solutions Engineer</div>
-  <h1>Self-taught builder shipping <span class="last">real AI systems.</span></h1>
-  <p class="hero__lead">I use Claude Code every day to take ideas end to end — and four years in luxury service and insurance taught me the other half: explaining the result to someone non-technical in words they actually use.</p>
-  <div class="hero__place">Puerto Rico · US citizen · fully bilingual English / Spanish</div>
+<div class="page">
+<header class="hero" id="top" data-cam="hero" data-tod="0.16">
+  <div class="hero__copy">
+
+  <div class="hero__meta eyebrow" data-i="t-meta">Javier Elías Crespo — AI Solutions Engineer</div>
+  <h1 data-i="t-h1">Self-taught builder shipping <span class="last">real AI systems.</span></h1>
+  <p class="hero__lead" data-i="t-lead">I use Claude Code every day to take ideas end to end — and four years in luxury service and insurance taught me the other half: explaining the result to someone non-technical in words they actually use.</p>
+  <p class="hero__made" data-i="t-hm"><b>I built this whole portfolio with Claude Code</b>, the island and everything on it. <a href="#made">How it was made, bugs and all ↓</a></p>
+  <div class="hero__place" data-i="t-place">Puerto Rico · US citizen · fully bilingual English / Spanish</div>
   <nav class="hero__links" aria-label="Contact">
     <a href="mailto:javierxelias@gmail.com">javierxelias@gmail.com</a>
     <a href="https://www.linkedin.com/in/javier-elías-83343b39a" target="_blank" rel="noopener">LinkedIn</a>
     <a href="https://github.com/javierxelias-svg" target="_blank" rel="noopener">GitHub</a>
   </nav>
-  <div class="horizon" aria-hidden="true"></div>
-  <div class="vitals" aria-label="CareerOS, last run">
-    <div class="vitals__head"><span class="dot"></span>CareerOS · last run</div>
+  
+    <div class="vitals" aria-label="CareerOS, last run">
+    <div class="vitals__head" data-i="t-vh"><span class="dot"></span>CareerOS · last run</div>
     <div class="vitals__grid">
-      <div class="vital"><b data-count="11280">11,280</b><span>listings scanned</span></div>
-      <div class="vital"><b data-count="186">186</b><span>employer job boards</span></div>
-      <div class="vital"><b data-count="195">195</b><span>job pages read in full</span></div>
-      <div class="vital"><b>Daily</b><span>runs on its own</span></div>
+      <div class="vital"><b data-count="11280">11,280</b><span data-i="t-v1">listings scanned</span></div>
+      <div class="vital"><b data-count="186">186</b><span data-i="t-v2">employer job boards</span></div>
+      <div class="vital"><b data-count="195">195</b><span data-i="t-v3">job pages read in full</span></div>
+      <div class="vital"><b data-i="t-v4b">Daily</b><span data-i="t-v4">runs on its own</span></div>
     </div>
+  </div>
+    <p class="scrollhint" data-i="t-scroll">↓ Puerto Rico, one building per project, sunrise to sunset</p>
   </div>
 </header>
 
-<main>
+<section class="chapter left" data-cam="about" data-side="left" data-tod="0.17">
+  <article class="card">
+    <p class="fig" data-i="t-about">01 — About</p>
 
-  <!-- ABOUT -->
-  <section class="wrap about" id="about">
-    <div class="sec-head"><span class="idx">01</span><h2>About</h2></div>
-    <p>Industrial Design taught me that form has to earn its function. I build the same way now, in software: autonomous multi-agent automations, a full business operating system, desktop apps, a knowledge base a model maintains as its own memory.</p>
-    <p>I build like it has to run without me watching: preflight checks, crash handling, a human tap before anything real happens. Things have broken, collapsed even, and every time I came back, found the bug, and fixed it. Two years as a butler at The St. Regis and two years at Optum (UnitedHealthcare) gave me the other half of the job, <span class="glow">explaining technical things to people in the words they actually use.</span></p>
-  </section>
+    <p data-i="t-a1">Industrial Design taught me that form has to earn its function. I build the same way now, in software: autonomous multi-agent automations, a full business operating system, desktop apps, a knowledge base a model maintains as its own memory.</p>
+    <p data-i="t-a2">I build like it has to run without me watching: preflight checks, crash handling, a human tap before anything real happens. Things have broken, collapsed even, and every time I came back, found the bug, and fixed it. Two years as a butler at The St. Regis and two years at Optum (UnitedHealthcare) gave me the other half of the job, <span class="glow">explaining technical things to people in the words they actually use.</span></p>
+  
+  </article>
+</section>
 
-  <!-- SELECTED WORK -->
-  <section class="wrap" id="work">
-    <div class="sec-head"><span class="idx">02</span><h2>Selected Work</h2></div>
+<section class="chapter left" data-cam="careeros" data-side="left" data-tod="0.19" data-az="0.5">
+  <article class="card featured">
+    <p class="fig" data-i="t-c-fig">Fig. 00 — Barrio · a hillside neighborhood<br><b>11,280 blocks · one per listing scanned</b></p>
 
-    <!-- FEATURED / META -->
-    <article class="featured reveal">
-      <div class="eyebrow">Featured · running today</div>
-      <h3>CareerOS — the system that found this job.</h3>
+      <div class="eyebrow" data-i="t-c-eb">Featured · running today</div>
+      <h3 data-i="t-c-h">CareerOS — the system that found this job.</h3>
       <div class="featured__body">
-        <p>A job-search engine I designed and run: it reads <b>186 employer job boards</b> directly from their own APIs, scores every listing against rules I wrote about pay, portability and the kind of work I can sustain, remembers what it has already shown me, and delivers a digest to Telegram each morning.</p>
-        <p class="decision">The non-obvious decision: it <b>forbids the sentence &ldquo;this should work.&rdquo;</b> Nothing is done because it looks done, only when it ran and left a receipt. Honesty is enforced by the machine, not by willpower.</p>
+        <p data-i="t-c-p1">A job-search engine I designed and run: it reads <b>186 employer job boards</b> directly from their own APIs, scores every listing against rules I wrote about pay, portability and the kind of work I can sustain, remembers what it has already shown me, and delivers a digest to Telegram each morning.</p>
+        <p class="decision" data-i="t-c-p2">The non-obvious decision: it <b>forbids the sentence &ldquo;this should work.&rdquo;</b> Nothing is done because it looks done, only when it ran and left a receipt. Honesty is enforced by the machine, not by willpower.</p>
       </div>
-      <p class="closer">Last run: <span class="em">11,280 listings across 186 boards, 195 job pages read in full.</span> I designed it, I run it, I debug it when it breaks, and I verify what it produces. I direct the code — I don't hand-write it.</p>
-      <div class="status live"><span class="dot"></span><a href="/how-i-found-this/">How I debug it: three times it told me something confidently wrong →</a></div>
-    </article>
+      <p class="closer" data-i="t-c-cl">Last run: <span class="em">11,280 listings across 186 boards, 195 job pages read in full.</span> I designed it, I run it, I debug it when it breaks, and I verify what it produces. I direct the code — I don't hand-write it.</p>
+      <div class="status live"><span class="dot"></span><a href="/how-i-found-this/" data-i="t-c-a">How I debug it: three times it told me something confidently wrong →</a></div>
+    
+        <details class="story"><summary data-i="t-st-careeros-s">The story · why a barrio</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-careeros-1">I'm building a life I don't need to escape from. CareerOS is how I look for the work that fits it: every employer's own job board, not just job sites, and every listing held to a pay bar and a portability bar I wrote down.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-careeros-2">First commit July 6, 2026, and 128 commits since. It ran on my Mac, then moved to GitHub's servers in late September. It now reads about 185 boards and over 11,000 listings a run. The first application it led me to went out in October.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-careeros-3">A ranking system encodes a definition of "good," so write that definition down before you build it. And when I didn't act on its picks, the problem was the system, not me: it was inflating salaries 2.3×.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-careeros-4">A hillside barrio is built house by house by the people who live in it, and it's lived in every day. This is the system I live in: every block on that hill is one listing it read.</dd></dl></details>
+  </article>
+</section>
 
-    <div class="work">
-      <article class="item reveal">
-        <div class="item__num">/ 01</div>
-        <div>
+<section class="chapter right" data-cam="pantry" data-side="right" data-tod="0.3" data-az="-0.6">
+  <article class="card">
+    <p class="fig" data-i="t-p-fig">Fig. 01 — Colmado · the corner store<br><b>Complete · live</b></p>
+
           <h3 class="item__title"><a href="/food-pantry-demo/">Food Pantry Weekly Digest</a></h3>
-          <p class="item__what">A working demo of what I'd build for a nonprofit. It turns a food pantry's messy weekly numbers into a plain-English brief anyone can act on: what's stocked, what's critically low, and a ready-to-post ask to the community. Sample data, no real org's information; edit anything and the digest recomputes live.</p>
-          <p class="item__decision">The whole point is legibility: <b>AI making a small organization's operations legible to the non-technical people who run it</b> — the exact thing years of service and sales taught me to do.</p>
-          <div class="status live"><span class="dot"></span><a href="/food-pantry-demo/">Open the live demo →</a></div>
+          <p class="item__what" data-i="t-p-w">A working demo of what I'd build for a nonprofit. It turns a food pantry's messy weekly numbers into a plain-English brief anyone can act on: what's stocked, what's critically low, and a ready-to-post ask to the community. Sample data, no real org's information; edit anything and the digest recomputes live.</p>
+          <p class="item__decision" data-i="t-p-d">The whole point is legibility: <b>AI making a small organization's operations legible to the non-technical people who run it</b> — the exact thing years of service and sales taught me to do.</p>
+          <div class="status live"><span class="dot"></span><a href="/food-pantry-demo/" data-i="t-p-a">Open the live demo →</a></div>
           <a class="shot" href="/food-pantry-demo/" aria-label="Open the Food Pantry Weekly Digest demo"><img src="/assets/food-pantry.jpg" width="1200" height="760" loading="lazy" alt="The Food Pantry Weekly Digest: families served, donations, volunteer hours, a ready-to-post community ask, and what is running low."></a>
-        </div>
-      </article>
-      <article class="item reveal">
-        <div class="item__num">/ 02</div>
-        <div>
+        
+        <details class="story"><summary data-i="t-st-pantry-s">The story · why a colmado</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-pantry-1">Take something technical and make it make sense to a normal person who just needs to feed their neighbors this week. It's part of a longer mission of mine: places of food and water for people who have neither.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-pantry-2">Built and published in July 2026 as part of my Claude Corps application, with food security as one of my chosen areas. One self-contained page on sample data. I tried to break it nine different ways; it held all nine.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-pantry-3">A demo has to say it's a demo. It runs on sample data and says so everywhere, because for a small nonprofit, trust is the whole product.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-pantry-4">The corner colmado is where a barrio finds out what's on the shelf and what's running low. This digest does the same for a food pantry, and its door is open: anyone can walk in and try it.</dd></dl></details>
+  </article>
+</section>
+
+<section class="chapter left" data-cam="xpt" data-side="left" data-tod="0.42" data-az="-0.5" data-el="0.5" data-dist="26">
+  <article class="card">
+    <p class="fig" data-i="t-x-fig">Fig. 02 — Central · an old sugar mill<br><b>Ran every week, June to September 2026</b></p>
+
           <h3 class="item__title">XPT OS</h3>
-          <p class="item__what">An autonomous lead engine that ran without me: three cooperating agents searched 14+ fragmented sources weekly, scored each lead against a weighted rubric with hard vetoes, deduped against a persistent ledger so nothing surfaced twice, and drafted personalized outreach to Telegram.</p>
-          <p class="item__decision">The cloud sandbox blocked outbound network calls, so I <b>used a git commit as the message queue</b> to get work off the box.</p>
-          <div class="status"><span class="dot"></span>Ran June 2026 · 18 outreach emails drafted to real businesses, 1 sent · dormant since</div>
-        </div>
-      </article>
+          <p class="item__what" data-i="t-x-w">An outreach engine I built for my own search: a live-in caretaker arrangement in Mallorca, where the best ones are never posted. Every week a cloud routine searched over a dozen scattered sources (property agencies, buyer's agents, local connectors), scored each lead against a weighted rubric with hard vetoes, deduped against a permanent ledger so no one was contacted twice, and sent me drafts on Telegram to review and send myself.</p>
+          <p class="item__decision" data-i="t-x-d">The cloud sandbox blocked outbound network calls, so I <b>used a git commit as the message queue</b> to get work off the box.</p>
+          <div class="status" data-i="t-x-s"><span class="dot"></span>Shipped · ran 17 times, June–September 2026 · 41 emails sent, 4 replies</div>
+        
+        <details class="story"><summary data-i="t-st-xpt-s">The story · why a sugar mill</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-xpt-1">Free housing in the Mediterranean would turn everything I earn into savings, and the best caretaker arrangements are never posted; they come through people. So I built a machine to find those people.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-xpt-2">June to September 2026: 17 weekly runs without a miss. I sent 41 emails between June 22 and July 22 and got 4 replies, one asking for my profile. I stopped sending in August; the machine kept running without me until late September.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-xpt-3">Job boards fill a small share of openings; most move through trust. And if a schedule matters, own the clock yourself and let the platform own only the work.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-xpt-4">Puerto Rico's sugar mills were built to send the island's work overseas. This one was built to send me overseas. The machinery never failed. I'm the one who stopped bringing it cane.</dd></dl></details>
+  </article>
+</section>
 
-      <article class="item reveal">
-        <div class="item__num">/ 03</div>
-        <div>
+<section class="chapter right" data-cam="webos" data-side="right" data-tod="0.54" data-az="0.55">
+  <article class="card">
+    <p class="fig" data-i="t-w-fig">Fig. 03 — Varillas · rebar for the second floor<br><b>v1 built · the second floor is next</b></p>
+
           <h3 class="item__title">Web OS</h3>
-          <p class="item__what">A web-design business encoded as software: a five-stage system (source → design → outreach → CRM → close) that finds businesses with weak sites, produces $10K-quality builds, and runs the sale. ~2,750 lines of Python across 21 scripts plus a Next.js build starter.</p>
-          <p class="item__decision">The hard part wasn't scraping, it was <b>encoding judgment</b>: which leads are worth it, an explicit anti-slop design bar, and a verify-before-send gate added after an early run bounced ~17%.</p>
-          <div class="status partial"><span class="dot"></span>v1 · strategy since pivoted on its own retrospective</div>
-        </div>
-      </article>
+          <p class="item__what" data-i="t-w-w">A web-design business encoded as software: a five-stage system (source → design → outreach → CRM → close) that finds businesses with weak sites, produces $10K-quality builds, and runs the sale. ~2,750 lines of Python across 21 scripts plus a Next.js build starter.</p>
+          <p class="item__decision" data-i="t-w-d">The hard part wasn't scraping, it was <b>encoding judgment</b>: which leads are worth it, an explicit anti-slop design bar, and a verify-before-send gate added after an early run bounced ~17%.</p>
+          <div class="status partial" data-i="t-w-s"><span class="dot"></span>Ran live email campaigns, June 2026 · v2 rebuilt around calls and a $550 site</div>
+        
+        <details class="story"><summary data-i="t-st-webos-s">The story · why rebar</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-webos-1">Find businesses whose websites were hurting them, build them a site that looks like it cost $10,000, and close it at $2,500. Not a company; a few clients to pay the bills.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-webos-2">Email campaigns ran in June 2026; one hit 17% bounces and paused itself. In July I wiped version 1 and switched to cold calls and a $550 site. My first referred client, a small business in Vieques, got a free practice site. No paid deals yet.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-webos-3">Verify every address before sending, never a raw scrape. Email can't reach businesses with no website: only 1 in 168 had an address. And read every AI-built page against its source: one tool invented fake reviews.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-webos-4">All over Puerto Rico, rebar sticks out of flat roofs, waiting for the second floor a family will build when there's money. Version 1 is the first floor. The rebar says I'm not done.</dd></dl></details>
+  </article>
+</section>
 
-      <article class="item reveal">
-        <div class="item__num">/ 04</div>
-        <div>
+<section class="chapter left" data-cam="elias" data-side="left" data-tod="0.65" data-az="-0.45" data-el="0.7" data-dist="19">
+  <article class="card">
+    <p class="fig" data-i="t-e-fig">Fig. 04 — Toldo azul · a blue tarp after Hurricane María<br><b>It fell, and its fall wrote my rules</b></p>
+
           <h3 class="item__title">ELiaS</h3>
-          <p class="item__what">A 9-agent personal AI operating system, built the way I'd want it if something real depended on it. ~9,700 lines: a shared resilience layer (preflight that exits clean instead of crash-looping, crash wrapper with alerting, Keychain secret fetch), a 4-provider LLM failover cascade, and a dead-man's switch that alerts from off the machine so a dead Mac still raises an alarm.</p>
-          <p class="item__decision">A hard rule: <b>machine-written knowledge is quarantined</b> from anything the system tells me about myself. Every real-world action needs a human tap.</p>
-          <div class="status"><span class="dot"></span>Dormant · the resilience rules I now build by were extracted from how this one failed</div>
-        </div>
-      </article>
+          <p class="item__what" data-i="t-e-w">A 9-agent personal AI operating system, built the way I'd want it if something real depended on it. ~9,700 lines: a shared resilience layer (preflight that exits clean instead of crash-looping, crash wrapper with alerting, Keychain secret fetch), a 4-provider LLM failover cascade, and a dead-man's switch that alerts from off the machine so a dead Mac still raises an alarm.</p>
+          <p class="item__decision" data-i="t-e-d">A hard rule: <b>machine-written knowledge is quarantined</b> from anything the system tells me about myself. Every real-world action needs a human tap.</p>
+          <div class="status" data-i="t-e-s"><span class="dot"></span>9 agents ran unattended, May–June 2026 · the resilience rules I build by came from how it failed</div>
+        
+        <details class="story"><summary data-i="t-st-elias-s">The story · why a blue tarp</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-elias-1">If I'm going to sell autonomous AI systems to businesses, I have to run one on myself first, unattended, for months, and find out what actually breaks.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-elias-2">Nine agents and about 9,700 lines ran on my Mac. On June 13, 2026, an auto-commit plugin removed all 60 files from the vault in ten minutes. I recovered the code from git; the system never ran again.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-elias-3">Monitoring that lives inside the thing it monitors isn't monitoring: the dead-man's switch died with the man. Every rule I build by now, preflight checks, crash alerts, an alarm from off the machine, came from how this one fell.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-elias-4">After Hurricane María, blue tarps covered the island's roofs while people rebuilt. A blue tarp means it fell and someone's still here. The rafters going up are the rules I took from the fall.</dd></dl></details>
+  </article>
+</section>
 
-      <article class="item reveal">
-        <div class="item__num">/ 05</div>
-        <div>
+<section class="chapter right" data-cam="brain" data-side="right" data-tod="0.76" data-az="-0.8" data-el="0.55">
+  <article class="card">
+    <p class="fig" data-i="t-b-fig">Fig. 05 — Arecibo · the dish still stands<br><b>Knowledge layer live</b></p>
+
           <h3 class="item__title">2nd Brain OS</h3>
-          <p class="item__what">A knowledge base a language model maintains as its own memory: an Obsidian vault where Claude Code is librarian and writer, with a three-tier context budget and a hand-written task router that answers any question in a capped number of reads.</p>
-          <p class="item__decision">A ground-truth file the model is <b>forbidden to exceed</b>, and autonomous writes tagged unverified, so machine claims stay separable from human fact. 176 agent-authored pages, nightly backup.</p>
-          <div class="status partial"><span class="dot"></span>Knowledge layer live and compounding · scheduled-agent layer down and documented as such</div>
-        </div>
-      </article>
+          <p class="item__what" data-i="t-b-w">A knowledge base a language model maintains as its own memory: an Obsidian vault where Claude Code is librarian and writer, with a three-tier context budget and a hand-written task router that answers any question in a capped number of reads.</p>
+          <p class="item__decision" data-i="t-b-d">A ground-truth file the model is <b>forbidden to exceed</b>, and autonomous writes tagged unverified, so machine claims stay separable from human fact. 176 agent-authored pages, nightly backup.</p>
+          <div class="status partial" data-i="t-b-s"><span class="dot"></span>Live · 176 pages written by agents, backed up nightly · scheduled layer retired</div>
+        
+        <details class="story"><summary data-i="t-st-brain-s">The story · why Arecibo</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-brain-1">Give a language model a long-term memory it keeps up on its own, without letting it rewrite the truth, because a model with write access will confidently corrupt what it touches.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-brain-2">82 commits since May 2026 and 176 pages written by agents. The knowledge layer is live and growing. The scheduled agents have been down since mid-May, failing on missing script paths, and the vault says so.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-brain-3">A system that documents its own automation has to verify that documentation, or the documentation becomes the most confident liar in the vault.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-brain-4">The great dish at Arecibo still stands; the platform that hung above it fell in 2020. The knowledge is the dish. The agents were the platform.</dd></dl></details>
+  </article>
+</section>
 
-      <article class="item">
-        <div class="item__num">/ 06</div>
-        <div>
-          <h3 class="item__title">AGG Glass — Inventory System</h3>
-          <p class="item__what">A glass-fabrication company running entirely on memory — no inventory tracking of any kind — asked me to design one, unpaid. I worked from two client documents that contradicted each other, reconciled them into a single agreed spec, and designed a two-tab Google Sheets system: a master item database and a daily movements log.</p>
-          <p class="item__decision">On-hand quantity is <b>never typed, it's derived from the movement ledger</b>, so the count can't disagree with its own history. Formulas over scripts on purpose: every rule is visible in the cell, so someone non-technical can own it without me around.</p>
-          <div class="status partial"><span class="dot"></span>Spec complete and agreed · build blocked on client sheet access · unpaid</div>
-        </div>
-      </article>
+<section class="chapter left" data-cam="cowork" data-side="left" data-tod="0.86" data-az="0.35" data-el="0.32" data-dist="17">
+  <article class="card">
+    <p class="fig" data-i="t-k-fig">Fig. 06 — Kiosko · Rincón at sunset<br><b>Live on Gumroad since May 2026</b></p>
 
-      
+          <h3 class="item__title">Claude Cowork Skills</h3>
+          <p class="item__what" data-i="t-k-w">Seven Claude skills for content creators who don't code, in English ($39) and Spanish ($29), sold on Gumroad. They draft newsletters, threads and YouTube metadata, batch a week of posts, repurpose one piece five ways, find reply opportunities, and learn the creator's voice. They work in Claude Cowork, Claude Projects and Claude Code.</p>
+          <p class="item__decision" data-i="t-k-d">The Spanish edition isn't a translation: <b>it was rewritten for Latin American creators</b>, a market where I'd checked and found no direct competitors.</p>
+          <div class="status partial" data-i="t-k-s"><span class="dot"></span><span>Live on Gumroad in English and Spanish since May 12, 2026 · <a href="https://javierxelias.gumroad.com/l/kgvkkk" target="_blank" rel="noopener">EN $39</a> · <a href="https://javierxelias.gumroad.com/l/joneam" target="_blank" rel="noopener">ES $29</a></span></div>
+        
+        <details class="story"><summary data-i="t-st-cowork-s">The story · why a kiosko</summary><dl>
+        <dt data-i="t-st-i">Intention</dt><dd data-i="t-st-cowork-1">A product made once and sold many times, with a Spanish edition for creators nobody was building for.</dd>
+        <dt data-i="t-st-h">What happened</dt><dd data-i="t-st-cowork-2">Both editions went live on Gumroad on May 12, 2026. The marketplaces and promotion I had planned never launched; on May 27 I stopped to pivot to higher-ticket work. No sales recorded. The listings are still up.</dd>
+        <dt data-i="t-st-l">What I learned</dt><dd data-i="t-st-cowork-3">Listing a product isn't selling it. Building took days; reaching people was the real work, and I stopped before doing it.</dd>
+        <dt data-i="t-st-y">The symbol</dt><dd class="symbol" data-i="t-st-cowork-4">Rincón's beach kioskos open every afternoon whether anyone comes or not. This one has its lights on and seven packages on the counter. Nobody's sat down yet.</dd></dl></details>
+  </article>
+</section>
 
-      <div class="secondary">
+<section class="chapter center night" data-cam="night" data-tod="1.0">
+  <div class="card">
+    <div class="sec-head"><span class="idx">02</span><h2 data-i="t-also">Also built</h2></div>
+    <div class="secondary">
         <div class="mini">
-          <div class="mini__title">FrecuencIA OS <span class="tag">content OS</span></div>
-          <p>A content-creation operating system I built for myself. A context-engineered Claude Code workspace that boots a full session with one command, plus a content engine that turns a voice memo into ready-to-post pieces without touching my voice: Claude transcribes, I write.</p>
-          <p class="mini__note">Built · used by hand to document, study and create content · no scheduled automation</p>
+          <div class="mini__title">FrecuencIA OS <span class="tag">Claude Code · content system</span></div>
+          <p data-i="t-f-p">The command center for my FrecuencIA World Tour: a context-engineered Claude Code workspace that loads its full context with one launch alias. Its content folder is a reel production system: a story bank, a ship-order reel queue, and a voice-memo ritual where Claude transcribes and formats but never writes in my voice.</p>
+          <p class="mini__note" data-i="t-f-n">Built July 2026 · my story bank and reel queue live here</p>
         </div>
         <div class="mini">
           <div class="mini__title">XPRST <span class="tag">macOS · Electron</span></div>
-          <p>A macOS dictation app that never steals focus. Hit a hotkey anywhere, speak, and the transcript lands on your clipboard without the app you're in ever knowing it happened. Whisper via Groq, 3,157 lines. The hard part was Electron window management: a pill UI built to be un-focusable and click-through.</p>
-          <p class="mini__note">Personal daily driver · stable · not productized</p>
+          <p data-i="t-x2-p">A macOS dictation app that never steals focus. Hit a hotkey anywhere, speak, and the transcript lands on your clipboard without the app you're in ever knowing it happened. Whisper via Groq, 3,157 lines. The hard part was Electron window management: a pill UI built to be un-focusable and click-through.</p>
+          <p class="mini__note" data-i="t-x2-n">My daily driver · stable</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">MASK OS <span class="tag">Claude Code · method manual</span></div>
+          <p data-i="t-mask-p">A Claude Code workspace that runs structured self-inquiry sessions to find the subconscious "mask" under a stuck pattern, using a 203-line method manual distilled from Peter Crone's public work. One thread per session: a specific moment, event versus story, the belief, a yes/no test, acceptance. It stops on crisis signals, never gives advice, and never speaks as Crone. Not therapy.</p>
+          <p class="mini__note" data-i="t-mask-n">Personal use · sessions run August 2026 · records kept private</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">Client Workspace Template <span class="tag">Claude Code · workspace</span></div>
+          <p data-i="t-tpl-p">The workspace I clone for client projects: five gates from spec to ship, written security rules with a secret-scan command to run before every commit, and a clone script that copies tracked files only, wipes plans, outputs and project learnings, and starts fresh git history. CareerOS and MASK OS were built from it.</p>
+          <p class="mini__note" data-i="t-tpl-n">In use · CareerOS and MASK OS were built from it</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">Implementer Kit <span class="tag">Bash · launchd · Claude Code</span></div>
+          <p data-i="t-kit-p">A kit for scheduling founder automations on Claude Code. Each one is a plain-English task file piped through Claude and delivered to Telegram. A shared engine (Keychain secrets, preflight, notify then exit cleanly on failure), a launchd scheduler and a daily heartbeat. 286 lines, two templates: an ops digest and an inbox-triage stub.</p>
+          <p class="mini__note" data-i="t-kit-n">Built June 2026 · engine, scheduler, heartbeat and two templates</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">VA OS <span class="tag">Retell · n8n · voice agent</span></div>
+          <p data-i="t-va-p">A productized voice and WhatsApp receptionist offer for local service businesses: Retell voice agent, Cal.com booking, WhatsApp Cloud API, n8n and a simple CRM. For one Miami detailer I built a bilingual Retell demo agent with call transfer, calendar booking and a recording disclosure, and rebuilt its knowledge base from the business's own site after I caught invented prices.</p>
+          <p class="mini__note" data-i="t-va-n">Working bilingual voice-agent demo, June 2026</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">AIOS Command Center <span class="tag">Next.js · prototype</span></div>
+          <p data-i="t-aios-p">A local dashboard to see my AI agents at a glance: what ran, what failed, what it produced. The cockpit for ELiaS, in Next.js and React.</p>
+          <p class="mini__note" data-i="t-aios-n">Phase 1 prototype · two working views, May 2026</p>
+        </div>
+        <div class="mini">
+          <div class="mini__title">Isla, this portfolio <span class="tag">Three.js · Claude Code</span></div>
+          <p data-i="t-isla-p">This page. Puerto Rico built block by block in code, no 3D model files: one building per project in its true condition, a day that passes as you scroll, culture across the island, real coquíes and plena, a switch to Spanish, and the whole island to explore at the end.</p>
+          <p class="mini__note" data-i="t-isla-n">Made entirely with Claude Code · verified on desktop and phone</p>
         </div>
       </div>
-    </div>
-  </section>
-
-
-  <!-- EXPERIENCE -->
-  <section class="wrap" id="experience">
-    <div class="sec-head"><span class="idx">03</span><h2>Experience</h2></div>
+  </div>
+  <div class="card" id="made">
+    <div class="sec-head"><span class="idx">03</span><h2 data-i="t-mk-h">How I made this island</h2></div>
+    <p class="made__lead" data-i="t-mk-l"><b>I built this whole portfolio with Claude Code.</b> Every block, building, person and sound on the island is code: no 3D model files. I directed every piece and judged it by eye, Claude Code wrote it, and nothing went in until it ran in a real browser, on a desktop and a phone.</p>
+    <div class="made__stats" data-i="t-mk-s">2 days · 20 versions · ~1,850 lines · 0 model files</div>
+    <p data-i="t-mk-g">It started as Greek temples. The first version put an acropolis on the island, one temple per project. I scrapped it for Puerto Rico itself: a barrio, a colmado, a sugar mill, a blue tarp.</p>
+    <p class="made__k" data-i="t-mk-k">What broke on the way, and how it got fixed</p>
+    <ul class="made__bugs">
+        <li><b data-i="t-mk-b0">Everyone had one leg.</b> <span data-i="t-mk-p0">A box drawn from right to left came out empty, so every person, drummer and vejigante lost the left leg. It showed on Benito first.</span></li>
+        <li><b data-i="t-mk-b1">Parrots bigger than houses.</b> <span data-i="t-mk-p1">The first cotorras had wings wider than a building, and the plastic chairs stood 1.6 m tall. People and props were rebuilt at true scale: a person is about 1.75 m beside a 2 m door.</span></li>
+        <li><b data-i="t-mk-b2">Coquíes that never got louder at night.</b> <span data-i="t-mk-p2">The line that turned them up was sitting inside a comment, so it never ran.</span></li>
+        <li><b data-i="t-mk-b3">Rain that wasn't there.</b> <span data-i="t-mk-p3">The shower over El Yunque switched itself off 40% of the time, and vanished completely with Reduce Motion on.</span></li>
+        <li><b data-i="t-mk-b4">Taps that did nothing on a phone.</b> <span data-i="t-mk-p4">Lifting a finger counts as "leaving" the screen, and that hid each explanation the instant it appeared. Caught by tapping an emulated iPhone with real touch events.</span></li>
+        <li><b data-i="t-mk-b5">Puerto Rico sideways.</b> <span data-i="t-mk-p5">On phones the final view showed the island turned on its side. Now it ends north-up, like a map.</span></li>
+        <li><b data-i="t-mk-b6">Silence on iPhone.</b> <span data-i="t-mk-p6">The silent switch muted the coquíes until the page asked to play as media, like a video.</span></li>
+        <li><b data-i="t-mk-b7">An engine that broke while looking fine.</b> <span data-i="t-mk-p7">A stray line broke the code twice while the browser kept serving the old copy. Now every change is syntax-checked and versioned before it loads.</span></li>
+        <li><b data-i="t-mk-b8">A project card that told the wrong story.</b> <span data-i="t-mk-p8">XPT OS said 18 drafts and 1 email. Its own records said 41 sent and 4 replies. Every claim on this page was checked against its source files.</span></li>
+        <li><b data-i="t-mk-b9">Music we weren't allowed to use.</b> <span data-i="t-mk-p9">The bomba recordings I loved most were all rights reserved. The plena you hear is one whose owner allows reuse, credited at the bottom.</span></li>
+    </ul>
+    <p class="made__close" data-i="t-mk-c">That's how I build: make it, break it on purpose, fix what it shows me, and keep the receipt.</p>
+  </div>
+  <div class="card">
+    <div class="sec-head"><span class="idx">04</span><h2 data-i="t-exp">Experience</h2></div>
     <div class="build">
       <div class="reveal">
-        <p class="build__k"><span class="mk">→</span>Optum (UnitedHealthcare) — Customer Service &amp; Sales Representative · 2022&ndash;2024</p>
-        <p>Two years supporting people through health-insurance decisions: taking high-stakes, genuinely confusing information and making it plain enough for a frightened person to act on. The whole job was translation, under time pressure, with real consequences for getting it wrong.</p>
+        <p class="build__k" data-i="t-o-k"><span class="mk">→</span>Optum (UnitedHealthcare) — Customer Service &amp; Sales Representative · 2022&ndash;2024</p>
+        <p data-i="t-o-p">Two years supporting people through health-insurance decisions: taking high-stakes, genuinely confusing information and making it plain enough for a frightened person to act on. The whole job was translation, under time pressure, with real consequences for getting it wrong.</p>
       </div>
       <div class="reveal">
-        <p class="build__k"><span class="mk">→</span>The St. Regis Bahia Beach Resort — Butler · 2019&ndash;2021</p>
-        <p>High-touch service for demanding guests: reading what someone needs before they can articulate it, holding fifteen competing priorities without dropping one, and handling sensitive situations with discretion. Implementation work, before I had the word for it.</p>
+        <p class="build__k" data-i="t-s-k"><span class="mk">→</span>The St. Regis Bahia Beach Resort — Butler · 2019&ndash;2021</p>
+        <p data-i="t-s-p">High-touch service for demanding guests: reading what someone needs before they can articulate it, holding fifteen competing priorities without dropping one, and handling sensitive situations with discretion. Implementation work, before I had the word for it.</p>
       </div>
       <div class="reveal">
-        <p class="build__k"><span class="mk">→</span>BFA, Industrial Design · fully bilingual English / Spanish</p>
-        <p>Design taught me that form has to earn its function. Bilingual since birth, spoken and written &mdash; which matters for any team serving customers across the Americas.</p>
+        <p class="build__k" data-i="t-d-k"><span class="mk">→</span>BFA, Industrial Design · fully bilingual English / Spanish</p>
+        <p data-i="t-d-p">Design taught me that form has to earn its function. Bilingual since birth, spoken and written &mdash; which matters for any team serving customers across the Americas.</p>
       </div>
     </div>
-  </section>
-
-  <!-- HOW I BUILD -->
-  <section class="wrap" id="how">
-    <div class="sec-head"><span class="idx">04</span><h2>How I build</h2></div>
+  </div>
+  <div class="card">
+    <div class="sec-head"><span class="idx">05</span><h2 data-i="t-how">How I build</h2></div>
     <div class="build">
       <div class="reveal">
-        <p class="build__k"><span class="mk">→</span>Verification over vibes</p>
-        <p>Nothing ships because it looks done. It ships when it ran and there's a receipt.</p>
+        <p class="build__k" data-i="t-h1k"><span class="mk">→</span>Verification over vibes</p>
+        <p data-i="t-h1p">Nothing ships because it looks done. It ships when it ran and there's a receipt.</p>
       </div>
       <div class="reveal">
-        <p class="build__k"><span class="mk">→</span>Built to survive handoff</p>
-        <p>Preflight, crash handling, approval gates. Someone else should be able to own it.</p>
+        <p class="build__k" data-i="t-h2k"><span class="mk">→</span>Built to survive handoff</p>
+        <p data-i="t-h2p">Preflight, crash handling, approval gates. Someone else should be able to own it.</p>
       </div>
       <div class="reveal">
-        <p class="build__k"><span class="mk">→</span>Honest about what's broken</p>
-        <p>Dormant is dormant. A projection is a projection. The defect list is part of the work.</p>
+        <p class="build__k" data-i="t-h3k"><span class="mk">→</span>Honest about what's broken</p>
+        <p data-i="t-h3p">Dormant is dormant. A projection is a projection. The defect list is part of the work.</p>
       </div>
     </div>
-  </section>
-
-  <!-- CERTS -->
-  <section class="wrap" id="certs">
-    <div class="sec-head"><span class="idx">05</span><h2>Certifications</h2></div>
+  </div>
+  <div class="card">
+    <div class="sec-head"><span class="idx">06</span><h2 data-i="t-cert">Certifications</h2></div>
     <div class="certs">
       <span class="cert"><b>AI Fluency</b></span>
       <span class="cert"><b>Claude 101</b></span>
     </div>
-  </section>
-
-</main>
-
-<footer class="wrap">
+  </div>
+  <footer class="card">
+  <div class="calado" aria-hidden="true"></div>
   <div class="foot">
     <nav class="foot__links" aria-label="Contact">
-      <a href="mailto:javierxelias@gmail.com">Email</a>
+      <a href="mailto:javierxelias@gmail.com" data-i="t-mail">Email</a>
       <a href="https://www.linkedin.com/in/javier-elías-83343b39a" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://github.com/javierxelias-svg" target="_blank" rel="noopener">GitHub</a>
     </nav>
-    <p class="foot__note">Built in Claude Code, verified before shipping. Javier Elías Crespo, Puerto Rico.</p>
+    <p class="foot__credit" data-i="t-credit">Coquí recording: Gabriel Leite, Río Grande, <a href="https://xeno-canto.org/996296" target="_blank" rel="noopener">xeno-canto XC996296</a>, CC BY-NC-SA 4.0, trimmed into a loop under the same license. Plena recording: Reilly Gault, <a href="https://www.youtube.com/watch?v=zY60YZVH5Ow" target="_blank" rel="noopener">&ldquo;Plena Puertorrique&ntilde;a&rdquo;</a>, CC BY 3.0, trimmed into a loop.</p>
+    <p class="foot__note" data-i="t-foot">This portfolio was made entirely with Claude Code, in Puerto Rico, and verified before shipping. Javier Elías Crespo.</p>
   </div>
 </footer>
+</section>
+<section class="tour tour--end" data-cam="tour" data-tour="8"><div class="tour__end"><p class="tour__made" data-i="t-made">This portfolio was made entirely with Claude Code.</p><span class="tour__hint" data-i="t-endh">Drag to move it · pinch to zoom · tap anything to learn what it is</span><button class="explore-btn" type="button" data-i="t-exp">Explore the island freely</button><a href="#top" data-i="t-top">↑ Back to the top</a></div></section>
+</div>
 
+<script type="application/json" id="i18n-es">{"t-meta": "Javier Elías Crespo — Ingeniero de Soluciones de IA", "t-h1": "Autodidacta que construye <span class=\"last\">sistemas de IA reales.<\/span>", "t-lead": "Uso Claude Code todos los días para llevar ideas de principio a fin — y cuatro años en servicio de lujo y seguros me enseñaron la otra mitad: explicarle el resultado a alguien no técnico con las palabras que de verdad usa.", "t-place": "Puerto Rico · ciudadano estadounidense · completamente bilingüe inglés / español", "t-vh": "<span class=\"dot\"><\/span>CareerOS · última corrida", "t-v1": "anuncios revisados", "t-v2": "páginas de empleo de empresas", "t-v3": "puestos leídos completos", "t-v4b": "Diario", "t-v4": "corre solo", "t-scroll": "↓ Puerto Rico, un edificio por proyecto, del amanecer al atardecer", "t-about": "01 — Sobre mí", "t-a1": "El Diseño Industrial me enseñó que la forma tiene que ganarse su función. Hoy construyo igual, pero en software: automatizaciones autónomas con varios agentes, un sistema operativo completo para un negocio, apps de escritorio y una base de conocimiento que un modelo mantiene como su propia memoria.", "t-a2": "Construyo como si tuviera que funcionar sin que yo lo esté mirando: chequeos antes de arrancar, manejo de fallos y una aprobación humana antes de que pase algo real. Se han roto cosas, hasta se han caído del todo, y cada vez volví, encontré el error y lo arreglé. Dos años como mayordomo en The St. Regis y dos años en Optum (UnitedHealthcare) me dieron la otra mitad del trabajo: <span class=\"glow\">explicar cosas técnicas con las palabras que la gente de verdad usa.<\/span>", "t-c-fig": "Fig. 00 — Barrio · un vecindario en la loma<br><b>11,280 bloques · uno por cada anuncio revisado<\/b>", "t-c-eb": "Destacado · funcionando hoy", "t-c-h": "CareerOS — el sistema que encontró este empleo.", "t-c-p1": "Un motor de búsqueda de empleo que diseñé y opero: lee <b>186 páginas de empleo<\/b> directamente desde las APIs de cada empresa, evalúa cada anuncio con reglas que escribí sobre salario, si el trabajo se puede hacer desde dondequiera y el tipo de trabajo que puedo sostener, recuerda lo que ya me mostró y me envía un resumen por Telegram cada mañana.", "t-c-p2": "La decisión que no es obvia: <b>prohíbe la frase &ldquo;esto debería funcionar.&rdquo;<\/b> Nada está hecho solo porque parezca hecho; lo está cuando corrió y dejó un recibo. La honestidad la impone la máquina, no la fuerza de voluntad.", "t-c-cl": "Última corrida: <span class=\"em\">11,280 anuncios en 186 páginas de empleo, 195 puestos leídos completos.<\/span> Yo lo diseñé, lo opero, lo depuro cuando se rompe y verifico lo que produce. Yo dirijo el código — no lo escribo a mano.", "t-c-a": "Cómo lo depuro: tres veces me dijo algo equivocado con total seguridad (en inglés) →", "t-p-fig": "Fig. 01 — Colmado · la tienda de la esquina<br><b>Completo · en vivo<\/b>", "t-p-w": "Un demo funcional de lo que construiría para una organización sin fines de lucro. Convierte los números semanales desordenados de un banco de alimentos en un resumen en lenguaje sencillo que cualquiera puede usar: qué hay, qué está en niveles críticos y un pedido de ayuda listo para publicar para la comunidad. Datos de muestra, sin información de ninguna organización real; edita cualquier cosa y el resumen se recalcula en vivo.", "t-p-d": "La idea es que se entienda: <b>IA que le aclara las operaciones de una organización pequeña a la gente no técnica que la dirige<\/b> — exactamente lo que años de servicio y ventas me enseñaron a hacer.", "t-p-a": "Abrir el demo en vivo (en inglés) →", "t-x-fig": "Fig. 02 — Central · un viejo central azucarero<br><b>Corrió todas las semanas, de junio a septiembre de 2026<\/b>", "t-x-w": "Un motor de contacto que construí para mi propia búsqueda: un arreglo de cuidador de propiedad, con vivienda, en Mallorca, donde los mejores nunca se anuncian. Cada semana una rutina en la nube buscaba en más de una docena de fuentes dispersas (agencias de propiedades, agentes de compradores, contactos locales), evaluaba cada contacto con una rúbrica ponderada y vetos estrictos, comparaba con un registro permanente para no escribirle dos veces a nadie, y me mandaba borradores a Telegram para revisarlos y enviarlos yo.", "t-x-d": "El entorno en la nube bloqueaba las llamadas de red hacia afuera, así que <b>usé un commit de git como cola de mensajes<\/b> para sacar el trabajo de la máquina.", "t-x-s": "<span class=\"dot\"><\/span>En producción · corrió 17 veces, de junio a septiembre de 2026 · 41 emails enviados, 4 respuestas", "t-w-fig": "Fig. 03 — Varillas · esperando el segundo piso<br><b>La v1 está construida · el segundo piso es lo próximo<\/b>", "t-w-w": "Un negocio de diseño web convertido en software: un sistema de cinco etapas (búsqueda → diseño → contacto → CRM → cierre) que encuentra negocios con páginas débiles, produce sitios de calidad de $10K y se encarga de la venta. ~2,750 líneas de Python en 21 scripts, más una plantilla inicial en Next.js.", "t-w-d": "Lo difícil no fue extraer datos, fue <b>codificar el criterio<\/b>: qué prospectos valen la pena, un estándar de diseño explícito contra lo genérico, y un filtro para verificar antes de enviar que añadí después de que una corrida temprana tuvo ~17% de rebotes.", "t-w-s": "<span class=\"dot\"><\/span>Corrió campañas de email reales en junio de 2026 · la v2 se rehízo alrededor de llamadas y una página de $550", "t-e-fig": "Fig. 04 — Toldo azul · después del huracán María<br><b>Se cayó, y su caída escribió mis reglas<\/b>", "t-e-w": "Un sistema operativo personal de IA con 9 agentes, construido como lo querría si algo real dependiera de él. ~9,700 líneas: una capa compartida de resiliencia (un chequeo previo que sale limpio en vez de reiniciarse en bucle, manejo de fallos con alertas, secretos desde el Keychain), una cascada de respaldo entre 4 proveedores de modelos, y un interruptor de hombre muerto que alerta desde fuera de la máquina para que una Mac apagada todavía dé la alarma.", "t-e-d": "Una regla firme: <b>el conocimiento escrito por la máquina está en cuarentena<\/b> de todo lo que el sistema me dice sobre mí. Toda acción en el mundo real necesita que una persona la apruebe.", "t-e-s": "<span class=\"dot\"><\/span>9 agentes corrieron sin supervisión, mayo y junio de 2026 · las reglas de resiliencia con las que construyo salieron de cómo falló", "t-b-fig": "Fig. 05 — Arecibo · el plato sigue en pie<br><b>La capa de conocimiento está activa<\/b>", "t-b-w": "Una base de conocimiento que un modelo de lenguaje mantiene como su propia memoria: una bóveda de Obsidian donde Claude Code es bibliotecario y escritor, con un presupuesto de contexto en tres niveles y un enrutador de tareas escrito a mano que contesta cualquier pregunta en un número limitado de lecturas.", "t-b-d": "Un archivo de hechos confirmados que el modelo <b>tiene prohibido sobrepasar<\/b>, y lo que escribe por su cuenta queda marcado como no verificado, para que lo que dice la máquina se pueda separar de los hechos humanos. 176 páginas escritas por agentes, respaldo cada noche.", "t-b-s": "<span class=\"dot\"><\/span>Activa · 176 páginas escritas por agentes, con respaldo cada noche · la capa programada se retiró", "t-also": "También construí", "t-f-p": "El centro de mando de mi FrecuencIA World Tour: un espacio de trabajo en Claude Code con el contexto diseñado para cargarse completo con un solo atajo. Su carpeta de contenido es un sistema de producción de reels: un banco de historias, una cola de reels en orden de publicación y un ritual de notas de voz donde Claude transcribe y da formato, pero nunca escribe con mi voz.", "t-f-n": "Construido en julio de 2026 · aquí viven mi banco de historias y mi cola de reels", "t-x2-p": "Una app de dictado para macOS que nunca te roba el foco. Presiona un atajo de teclado dondequiera, habla, y la transcripción cae en tu portapapeles sin que la app en la que estás se entere. Whisper vía Groq, 3,157 líneas. Lo difícil fue manejar las ventanas en Electron: una interfaz tipo píldora hecha para no recibir foco ni clics.", "t-x2-n": "Lo uso todos los días · estable", "t-exp": "Explorar la isla libremente", "t-o-k": "<span class=\"mk\">→<\/span>Optum (UnitedHealthcare) — Representante de Servicio al Cliente y Ventas · 2022&ndash;2024", "t-o-p": "Dos años ayudando a personas con decisiones de seguro de salud: tomar información delicada y bien confusa y hacerla tan clara que una persona asustada pudiera actuar. Todo el trabajo era traducir, bajo presión de tiempo, con consecuencias reales si te equivocabas.", "t-s-k": "<span class=\"mk\">→<\/span>The St. Regis Bahia Beach Resort — Mayordomo · 2019&ndash;2021", "t-s-p": "Servicio personalizado para huéspedes exigentes: entender lo que alguien necesita antes de que lo pueda decir, manejar quince prioridades a la vez sin soltar ninguna y atender situaciones delicadas con discreción. Trabajo de implementación, antes de saber que se llamaba así.", "t-d-k": "<span class=\"mk\">→<\/span>BFA, Diseño Industrial · completamente bilingüe inglés / español", "t-d-p": "El diseño me enseñó que la forma tiene que ganarse su función. Bilingüe desde que nací, hablado y escrito &mdash; algo que importa en cualquier equipo que sirve a clientes en las Américas.", "t-how": "Cómo construyo", "t-h1k": "<span class=\"mk\">→<\/span>Verificación, no corazonadas", "t-h1p": "Nada se entrega solo porque parezca listo. Se entrega cuando corrió y hay un recibo.", "t-h2k": "<span class=\"mk\">→<\/span>Hecho para que otro lo herede", "t-h2p": "Chequeos previos, manejo de fallos, puntos de aprobación. Otra persona debería poder hacerse cargo.", "t-h3k": "<span class=\"mk\">→<\/span>Honesto sobre lo que está roto", "t-h3p": "Inactivo es inactivo. Una proyección es una proyección. La lista de defectos es parte del trabajo.", "t-cert": "Certificaciones", "t-mail": "Email", "t-foot": "Este portafolio fue hecho completamente con Claude Code, en Puerto Rico, y verificado antes de publicar. Javier Elías Crespo.", "t-wk": "De dónde soy", "t-w1": "Ciudadano estadounidense · sin visa ni patrocinio", "t-w2": "Hora de Nueva York mar&ndash;nov · 1 h más en invierno", "t-w3": "100 &times; 35 millas · 3.2 millones de personas", "t-hint": "Desliza para viajar · arrastra para mirar · señala cualquier cosa", "t-top": "↑ Volver arriba", "t-credit": "Grabación del coquí: Gabriel Leite, Río Grande, <a href=\"https://xeno-canto.org/996296\" target=\"_blank\" rel=\"noopener\">xeno-canto XC996296<\/a>, CC BY-NC-SA 4.0, recortada en bucle bajo la misma licencia. Grabación de plena: Reilly Gault, <a href=\"https://www.youtube.com/watch?v=zY60YZVH5Ow\" target=\"_blank\" rel=\"noopener\">&ldquo;Plena Puertorrique&ntilde;a&rdquo;<\/a>, CC BY 3.0, recortada en bucle.", "t-exph": "Arrastra para mover · toca Girar y arrastra para rotar · pellizca o usa la rueda para acercar · toca cualquier cosa", "t-expr": "Volver", "t-expd": "Listo", "t-endh": "Arrástrala para moverla · pellizca para acercar · toca cualquier cosa para saber qué es", "t-made": "Este portafolio fue hecho completamente con Claude Code.", "t-mask-p": "Un espacio de trabajo en Claude Code que guía sesiones estructuradas de autoindagación para encontrar la \"máscara\" subconsciente debajo de un patrón estancado, con un manual de método de 203 líneas destilado del trabajo público de Peter Crone. Un hilo por sesión: un momento específico, el hecho contra la historia, la creencia, una prueba de sí o no, aceptación. Se detiene ante señales de crisis, nunca da consejos y nunca habla como Crone. No es terapia.", "t-mask-n": "Uso personal · sesiones en agosto de 2026 · registros privados", "t-aios-p": "Un panel local para ver mis agentes de IA de un vistazo: qué corrió, qué falló, qué produjo. La cabina de ELiaS, en Next.js y React.", "t-aios-n": "Prototipo fase 1 · dos vistas funcionando, mayo de 2026", "t-isla-p": "Esta página. Puerto Rico construido bloque a bloque en código, sin archivos de modelos 3D: un edificio por proyecto en su condición real, un día que pasa mientras bajas, la cultura de la isla, coquíes y plena de verdad, un cambio a español y la isla entera para explorar al final.", "t-isla-n": "Hecho completamente con Claude Code · verificado en computadora y celular", "t-tpl-p": "El espacio de trabajo que clono para proyectos de clientes: cinco etapas con control de la especificación a la entrega, reglas de seguridad escritas con un comando de escaneo de secretos antes de cada commit, y un script de clonado que copia solo los archivos rastreados, borra planes, resultados y aprendizajes del proyecto, y arranca un historial de git nuevo. CareerOS y MASK OS salieron de él.", "t-tpl-n": "En uso · CareerOS y MASK OS salieron de él", "t-kit-p": "Un kit para programar automatizaciones de fundadores en Claude Code. Cada una es un archivo de tareas en lenguaje sencillo que pasa por Claude y se entrega por Telegram. Un motor compartido (secretos desde el Keychain, chequeo previo, avisar y salir limpio si falla), un programador con launchd y un latido diario. 286 líneas, dos plantillas: un resumen de operaciones y un borrador de clasificación de correo.", "t-kit-n": "Construido en junio de 2026 · motor, programador, latido diario y dos plantillas", "t-va-p": "Una oferta empaquetada de recepcionista por voz y WhatsApp para negocios de servicio locales: agente de voz en Retell, citas con Cal.com, WhatsApp Cloud API, n8n y un CRM sencillo. Para un negocio de detailing de carros en Miami construí un agente demo bilingüe en Retell con transferencia de llamadas, citas en calendario y aviso de grabación, y rehice su base de conocimiento desde la página del propio negocio cuando descubrí que inventaba precios.", "t-va-n": "Demo funcional de agente de voz bilingüe, junio de 2026", "t-turn": "⟳ Girar", "t-k-fig": "Fig. 06 — Kiosko · Rincón al atardecer<br><b>En Gumroad desde mayo de 2026<\/b>", "t-k-w": "Siete skills de Claude para creadores de contenido que no programan, en inglés ($39) y en español ($29), a la venta en Gumroad. Redactan newsletters, threads y la información de un video de YouTube, preparan una semana de posts, convierten una pieza en cinco versiones, encuentran oportunidades para responder y aprenden la voz del creador. Funcionan en Claude Cowork, Claude Projects y Claude Code.", "t-k-d": "La edición en español no es una traducción: <b>la reescribí para creadores latinoamericanos<\/b>, un mercado donde busqué y no encontré competencia directa.", "t-k-s": "<span class=\"dot\"><\/span><span>En Gumroad en inglés y en español desde el 12 de mayo de 2026 · <a href=\"https://javierxelias.gumroad.com/l/kgvkkk\" target=\"_blank\" rel=\"noopener\">EN $39<\/a> · <a href=\"https://javierxelias.gumroad.com/l/joneam\" target=\"_blank\" rel=\"noopener\">ES $29<\/a><\/span>", "t-st-i": "La intención", "t-st-h": "Qué pasó", "t-st-l": "Qué aprendí", "t-st-y": "El símbolo", "t-st-careeros-s": "La historia · por qué un barrio", "t-st-careeros-1": "Estoy construyendo una vida de la que no necesite escaparme. CareerOS es cómo busco el trabajo que encaje en ella: la página de empleo de cada compañía, no solo los portales, y cada puesto medido contra una barra de salario y una de movilidad que escribí.", "t-st-careeros-2": "El primer commit fue el 6 de julio de 2026 y lleva 128 desde entonces. Corría en mi Mac y a finales de septiembre se mudó a los servidores de GitHub. Hoy lee unas 185 páginas de empleo y más de 11,000 anuncios por corrida. La primera solicitud que salió de él la envié en octubre.", "t-st-careeros-3": "Un sistema que clasifica lleva por dentro una definición de lo que es \"bueno\", así que hay que escribirla antes de construirlo. Y cuando yo no actuaba sobre lo que me recomendaba, el problema era el sistema, no yo: estaba inflando los salarios 2.3 veces.", "t-st-careeros-4": "Un barrio en la loma se construye casa por casa, por la misma gente que vive en él, y se vive todos los días. Este es el sistema en el que vivo: cada bloque de esa loma es un anuncio que leyó.", "t-st-pantry-s": "La historia · por qué un colmado", "t-st-pantry-1": "Agarrar algo técnico y hacer que tenga sentido para una persona normal que lo único que necesita es darle de comer a sus vecinos esta semana. Es parte de una misión más larga mía: lugares de comida y agua para la gente que no tiene ni lo uno ni lo otro.", "t-st-pantry-2": "Lo construí y lo publiqué en julio de 2026 como parte de mi solicitud a Claude Corps, con la seguridad alimentaria como una de mis áreas. Es una sola página con datos de muestra. Traté de romperla de nueve maneras distintas y aguantó las nueve.", "t-st-pantry-3": "Un demo tiene que decir que es un demo. Corre con datos de muestra y lo dice por todas partes, porque para una organización pequeña sin fines de lucro, la confianza es todo el producto.", "t-st-pantry-4": "El colmado de la esquina es donde el barrio se entera de qué hay en las tablillas y qué se está acabando. Este resumen hace lo mismo para un banco de alimentos, y tiene la puerta abierta: cualquiera puede entrar y probarlo.", "t-st-xpt-s": "La historia · por qué un central", "t-st-xpt-1": "Vivienda gratis en el Mediterráneo convertiría todo lo que gano en ahorro, y los mejores arreglos de cuidador nunca se anuncian; llegan a través de gente. Así que construí una máquina para encontrar a esa gente.", "t-st-xpt-2": "De junio a septiembre de 2026: 17 corridas semanales sin fallar una. Envié 41 emails entre el 22 de junio y el 22 de julio y recibí 4 respuestas, una pidiéndome mi perfil. Dejé de enviar en agosto; la máquina siguió corriendo sin mí hasta finales de septiembre.", "t-st-xpt-3": "Las páginas de empleo llenan una parte pequeña de los puestos; la mayoría se mueve por confianza. Y si un horario importa, el reloj tiene que ser tuyo, y la plataforma solo se encarga del trabajo.", "t-st-xpt-4": "Los centrales de Puerto Rico se construyeron para mandar el trabajo de la isla para afuera. Este se construyó para mandarme a mí para afuera. La maquinaria nunca falló. Fui yo el que dejó de traerle caña.", "t-st-webos-s": "La historia · por qué varillas", "t-st-webos-1": "Encontrar negocios a los que su página web les estaba haciendo daño, construirles una que parezca que costó $10,000 y cerrarla en $2,500. No una compañía: unos cuantos clientes para pagar las cuentas.", "t-st-webos-2": "Las campañas de email corrieron en junio de 2026; una llegó a 17% de rebotes y se pausó sola. En julio borré la versión 1 y cambié a llamadas en frío y una página de $550. Mi primer cliente referido, un negocio pequeño en Vieques, recibió una página gratis de práctica. Todavía no hay tratos pagados.", "t-st-webos-3": "Verificar cada dirección antes de enviar, nunca una lista cruda. Por email no se llega a los negocios sin página web: solo 1 de 168 tenía dirección. Y leer cada página hecha con IA contra su fuente: una herramienta se inventó reseñas falsas.", "t-st-webos-4": "Por todo Puerto Rico hay varillas saliendo de los techos, esperando el segundo piso que la familia va a construir cuando haya dinero. La versión 1 es el primer piso. Las varillas dicen que no he terminado.", "t-st-elias-s": "La historia · por qué un toldo azul", "t-st-elias-1": "Si voy a venderle sistemas autónomos de IA a negocios, primero tengo que correr uno en mí mismo, sin supervisión, por meses, y ver qué es lo que de verdad se rompe.", "t-st-elias-2": "Nueve agentes y unas 9,700 líneas corrían en mi Mac. El 13 de junio de 2026, un plugin de commits automáticos borró los 60 archivos de la bóveda en diez minutos. Recuperé el código desde git; el sistema no volvió a correr.", "t-st-elias-3": "Un monitoreo que vive dentro de lo que monitorea no es monitoreo: el interruptor de hombre muerto se murió con el hombre. Cada regla con la que construyo hoy, chequeos previos, alertas de fallos, una alarma desde fuera de la máquina, salió de cómo se cayó este.", "t-st-elias-4": "Después de María, los toldos azules cubrieron los techos de la isla mientras la gente reconstruía. Un toldo azul quiere decir que se cayó y que todavía hay alguien ahí. Las vigas que van subiendo son las reglas que saqué de la caída.", "t-st-brain-s": "La historia · por qué Arecibo", "t-st-brain-1": "Darle a un modelo de lenguaje una memoria a largo plazo que él mismo mantenga, sin dejarlo reescribir la verdad, porque un modelo con permiso para escribir va a dañar con toda confianza lo que toque.", "t-st-brain-2": "82 commits desde mayo de 2026 y 176 páginas escritas por agentes. La capa de conocimiento está activa y creciendo. Los agentes programados están caídos desde mediados de mayo, fallando por rutas de scripts que no existen, y la bóveda lo dice.", "t-st-brain-3": "Un sistema que documenta su propia automatización tiene que verificar esa documentación, o la documentación se convierte en el mentiroso más confiado de la bóveda.", "t-st-brain-4": "El gran plato de Arecibo sigue en pie; la plataforma que colgaba encima se cayó en 2020. El conocimiento es el plato. Los agentes eran la plataforma.", "t-st-cowork-s": "La historia · por qué un kiosko", "t-st-cowork-1": "Un producto que se hace una vez y se vende muchas, con una edición en español para creadores para los que nadie estaba construyendo.", "t-st-cowork-2": "Las dos ediciones salieron en Gumroad el 12 de mayo de 2026. Los marketplaces y la promoción que había planificado nunca arrancaron; el 27 de mayo lo dejé para enfocarme en trabajo de más valor. No hay ventas registradas. Los productos siguen a la venta.", "t-st-cowork-3": "Poner un producto a la venta no es venderlo. Construirlo tomó días; llegarle a la gente era el trabajo de verdad, y lo dejé antes de hacerlo.", "t-st-cowork-4": "Los kioskos de playa en Rincón abren todas las tardes, venga quien venga. Este tiene las luces prendidas y siete paquetes en el mostrador. Todavía nadie se ha sentado.", "t-hm": "<b>Construí todo este portafolio con Claude Code<\/b>, la isla y todo lo que hay en ella. <a href=\"#made\">Cómo se hizo, con todo y bugs ↓<\/a>", "t-mk-h": "Cómo hice esta isla", "t-mk-l": "<b>Construí todo este portafolio con Claude Code.<\/b> Cada bloque, edificio, persona y sonido de la isla es código: ningún archivo de modelo 3D. Yo dirigí cada pieza y la juzgué a ojo, Claude Code la escribió, y nada entró hasta que corrió en un navegador de verdad, en computadora y en celular.", "t-mk-s": "2 días · 20 versiones · ~1,850 líneas · 0 archivos de modelos", "t-mk-g": "Empezó como templos griegos. La primera versión puso una acrópolis en la isla, un templo por proyecto. La descarté por Puerto Rico mismo: un barrio, un colmado, un central, un toldo azul.", "t-mk-k": "Lo que se rompió en el camino, y cómo se arregló", "t-mk-c": "Así construyo: lo hago, lo rompo a propósito, arreglo lo que me enseña y guardo el recibo.", "t-mk-b0": "Todos tenían una sola pierna.", "t-mk-p0": "Una caja dibujada de derecha a izquierda salía vacía, así que cada persona, tamborero y vejigante perdió la pierna izquierda. Se vio primero en Benito.", "t-mk-b1": "Cotorras más grandes que las casas.", "t-mk-p1": "Las primeras cotorras tenían alas más anchas que un edificio y las sillas plásticas medían 1.6 m. La gente y los objetos se reconstruyeron a escala real: una persona mide como 1.75 m al lado de una puerta de 2 m.", "t-mk-b2": "Coquíes que nunca subían de noche.", "t-mk-p2": "La línea que les subía el volumen estaba metida dentro de un comentario, así que nunca corrió.", "t-mk-b3": "Lluvia que no estaba.", "t-mk-p3": "El aguacero sobre El Yunque se apagaba solo el 40% del tiempo y desaparecía del todo con Reducir movimiento prendido.", "t-mk-b4": "Toques que no hacían nada en el celular.", "t-mk-p4": "Levantar el dedo cuenta como \"salir\" de la pantalla, y eso escondía cada explicación en el instante en que salía. Lo atrapamos tocando un iPhone emulado con toques reales.", "t-mk-b5": "Puerto Rico de lado.", "t-mk-p5": "En el celular, la vista final enseñaba la isla virada de lado. Ahora termina con el norte arriba, como un mapa.", "t-mk-b6": "Silencio en el iPhone.", "t-mk-p6": "El botón de silencio callaba a los coquíes hasta que la página pidió sonar como medio, igual que un video.", "t-mk-b7": "Un motor que se rompió aunque se veía bien.", "t-mk-p7": "Una línea fuera de lugar rompió el código dos veces mientras el navegador seguía enseñando la copia vieja. Ahora cada cambio se verifica y se versiona antes de cargar.", "t-mk-b8": "Una tarjeta que contaba la historia equivocada.", "t-mk-p8": "XPT OS decía 18 borradores y 1 email. Sus propios registros decían 41 enviados y 4 respuestas. Cada dato de esta página se verificó contra sus archivos.", "t-mk-b9": "Música que no podíamos usar.", "t-mk-p9": "Las grabaciones de bomba que más me gustaban tenían todos los derechos reservados. La plena que escuchas es una cuyo dueño permite usarla, con crédito abajo.", "t-gd-h": "Cómo funciona", "t-gd-1": "<b>Baja por la página<\/b> para viajar por Puerto Rico, un edificio por proyecto.", "t-gd-2m": "<b>Señala cualquier cosa<\/b> y te dice qué es. Haz clic en un edificio para abrir su proyecto.", "t-gd-2t": "<b>Toca cualquier cosa<\/b> y te dice qué es.", "t-gd-3w": "<b>Los botones<\/b> abajo a la derecha: escucha coquíes y plena, cambia a inglés.", "t-gd-3n": "<b>Los botones<\/b> de arriba: escucha coquíes y plena, cambia a inglés.", "t-gd-ok": "Entendido"}</script>
 <script>
 (function(){
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var els = document.querySelectorAll('.vital b[data-count]');
-  els.forEach(function(el){
-    var target = +el.dataset.count, t0 = null, dur = 1400;
-    function step(ts){
-      if(!t0) t0 = ts;
-      var k = Math.min(1, (ts - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-      el.textContent = Math.round(target * e).toLocaleString('en-US');
-      if (k < 1) requestAnimationFrame(step);
-    }
-    el.textContent = '0';
-    requestAnimationFrame(step);
-  });
+  var ES = JSON.parse(document.getElementById('i18n-es').textContent), els = [].slice.call(document.querySelectorAll('[data-i]')), btn = document.querySelector('.lang');
+  var TITLE = {en: document.title, es: 'Javier Elías Crespo — construyo sistemas de IA reales con Claude Code'};
+  els.forEach(function(e){ e.setAttribute('data-en', e.innerHTML); });
+  function set(lang){
+    els.forEach(function(e){ var k = e.getAttribute('data-i'); e.innerHTML = lang === 'es' && ES[k] ? ES[k] : e.getAttribute('data-en'); });
+    document.documentElement.lang = lang; document.title = TITLE[lang];
+    btn.textContent = innerWidth <= 820 ? (lang === 'es' ? 'EN' : 'ES') : (lang === 'es' ? 'English' : 'Español'); btn.setAttribute('aria-label', lang === 'es' ? 'View in English' : 'Ver en español');
+    try { localStorage.setItem('isla-lang', lang); } catch(e) {}
+    dispatchEvent(new Event('langchange'));
+  }
+  btn.addEventListener('click', function(){ set(document.documentElement.lang === 'es' ? 'en' : 'es'); });
+  var saved; try { saved = localStorage.getItem('isla-lang'); } catch(e) {}
+  if (saved === 'es') set('es'); else if (innerWidth <= 820) btn.textContent = 'ES';
+})();
+</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"}}</script>
+<script type="module" src="/assets/isla.js?v=20261008j"></script>
+<script>
+(function(){ var g = document.querySelector('.guide'), c = document.querySelector('.controls'), q = document.querySelector('.help'); if (!g) return;
+  function open(){ g.hidden = false; document.documentElement.classList.add('guide-open'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ g.classList.add('in'); }); }); }
+  function close(){ g.classList.remove('in'); document.documentElement.classList.remove('guide-open'); if (c) c.classList.remove('nudge');
+    setTimeout(function(){ if (!g.classList.contains('in')) g.hidden = true; }, 350); try { localStorage.setItem('isla-guide-seen', '1'); } catch (e) {} }
+  g.querySelector('.guide__ok').addEventListener('click', close);
+  if (q) q.addEventListener('click', function(){ g.hidden ? open() : close(); });   // "?" brings it back anytime
+  addEventListener('keydown', function(e){ if (e.key === 'Escape' && !g.hidden) close(); });
+  var seen = false; try { seen = localStorage.getItem('isla-guide-seen') === '1'; } catch (e) {}
+  if (seen) { if (c) c.classList.remove('nudge'); return; }
+  setTimeout(open, 900);   // first visit only; starting to scroll means they've got it
+  addEventListener('scroll', function f(){ if (scrollY > innerHeight * 0.5) { if (!g.hidden) close(); removeEventListener('scroll', f); } }, { passive: true });
 })();
 </script>
 </body>
