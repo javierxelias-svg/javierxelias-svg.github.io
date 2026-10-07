@@ -3,7 +3,7 @@
    Each building's condition tells the truth about the project. Scroll flies the camera; hover lifts blocks;
    point at anything to learn what it is; click a building to read its project; drag looks around. At night the bays glow and the coquíes sing. */
 import * as THREE from 'three';
-import { plan, rng } from './isla-plans.js?v=20261008j';
+import { plan, rng } from './isla-plans.js?v=20261009a';
 
 /* ---------------- settings ---------------- */
 // the island always moves, for everyone: the art is the motion (buildings drop in block by block, flicks glide)
@@ -462,13 +462,15 @@ function start() {
     cowork: ['A beach kiosko in Rincón, lights on at sunset: live and for sale in English and Spanish.', 'Un kiosko de playa en Rincón con las luces prendidas al atardecer: a la venta en inglés y en español.'],
   };
   const BAYS_XZ = BAYS.map(([lo, la]) => proj(lo, la));
-  const pickList = [...Object.values(temples).map(t => t.mesh), propMesh];
+  const pickList = [...Object.values(temples).map(t => t.mesh), propMesh, terrain];
+  const inYunque = p => Math.hypot(p.x - LUQ[0], (p.z - LUQ[1]) * 1.15) < 9.5;   // the whole massif and its rainforest, not just its foot
   // what is under a screen point: a cotorra, a tagged block, a building, an island flamboyán, El Yunque, a glowing bay, or just ground
   function pick(cx, cy) {
     ptr.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1); ray.setFromCamera(ptr, camera);
     for (const b of birds) if (ray.ray.distanceToPoint(b.g.position) < 0.35 + camera.position.distanceTo(b.g.position) * 0.015) return { topic: 'cotorra', pos: b.g.position.clone() };
     for (const h of ray.intersectObjects(pickList, false)) {
-      if (h.object === propMesh) { const k = props[h.instanceId] && props[h.instanceId].kind; if (k) return { topic: k, pos: h.point }; break; }   // a house or a tree in the way
+      if (h.object === propMesh || h.object === terrain) { const k = h.object === propMesh && props[h.instanceId] && props[h.instanceId].kind; if (k) return { topic: k, pos: h.point };
+        if (inYunque(h.point)) return { topic: 'yunque', pos: h.point }; break; }   // the ground, a house or a tree: El Yunque explains itself, anything else falls through
       const tp = h.object.userData.temple; if (!tp || !tp.shown) continue;
       const b = tp.P.solid[h.instanceId], id = tp.site.id;
       if (b && b.tag) return { topic: b.tag, pos: h.point, site: tp.site };
@@ -476,7 +478,7 @@ function start() {
     }
     const pt = groundAt(cx, cy); if (!pt) return null;
     if (!inside(pt.x, pt.z) && BAYS_XZ.some(([bx, bz]) => Math.hypot(pt.x - bx, pt.z - bz) < 3.4)) return { topic: 'bahia', pos: pt };
-    if (inside(pt.x, pt.z) && Math.hypot(pt.x - LUQ[0], pt.z - LUQ[1]) < 6.5) return { topic: 'yunque', pos: pt };
+    if (inside(pt.x, pt.z) && inYunque(pt)) return { topic: 'yunque', pos: pt };
     return { pt };
   }
   const tip = document.querySelector('.place-tip'); let tipTimer = 0, tipHeld = 0;
