@@ -458,7 +458,7 @@ function start() {
     xpt: ['An old sugar mill whose machinery ran every week, June to September: 41 emails out, 4 replies back.', 'Un viejo central cuya maquinaria corrió todas las semanas, de junio a septiembre: 41 emails enviados, 4 respuestas.'],
     webos: ['Rebar on the roof for the second floor: version 1 is built and ran; version 2 is next.', 'Varillas en el techo para el segundo piso: la versión 1 está construida y corrió; la versión 2 es lo próximo.'],
     elias: ['A blue tarp after Hurricane María: it fell, and how it fell taught me how to build.', 'Un toldo azul después de María: se cayó, y cómo se cayó me enseñó a construir.'],
-    brain: ['Arecibo: the dish still stands. The knowledge is live and growing; the platform above it was retired.', 'Arecibo: el plato sigue en pie. El conocimiento está activo y creciendo; la plataforma de arriba se retiró.'],
+    brain: ['Arecibo: the dish still stands. The knowledge is kept; the platform above it was retired.', 'Arecibo: el plato sigue en pie. El conocimiento se conserva; la plataforma de arriba se retiró.'],
     cowork: ['A beach kiosko in Rincón, lights on at sunset: live and for sale in English and Spanish.', 'Un kiosko de playa en Rincón con las luces prendidas al atardecer: a la venta en inglés y en español.'],
   };
   const BAYS_XZ = BAYS.map(([lo, la]) => proj(lo, la));

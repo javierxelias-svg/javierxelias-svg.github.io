@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Food Pantry Weekly Digest — a demo by Javier Elías</title>
+<title>Food Pantry Weekly Digest — a demo by Javier Elías Crespo</title>
 <meta name="description" content="A demo tool: turn a food pantry's messy weekly numbers into a clean, plain-English brief that anyone can read and act on. Sample data, edit anything, the digest updates live.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -164,6 +164,7 @@
       <div class="field"><label for="fLast">Families last week</label><input id="fLast" type="number" min="0" inputmode="numeric"></div>
       <div class="field"><label for="lbs">Donations in (lbs)</label><input id="lbs" type="number" min="0" inputmode="numeric"></div>
     </div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
     <table>
       <thead>
         <tr>
@@ -173,6 +174,7 @@
       </thead>
       <tbody id="invBody"></tbody>
     </table>
+    </div>
   </section>
 
   <footer>
@@ -205,7 +207,7 @@
   ];
 
   var $ = function(id){ return document.getElementById(id); };
-  function n(x){ return Number(x) || 0; }
+  function n(x){ return Math.max(0, Number(x) || 0); }
   function fmt(x){ return n(x).toLocaleString("en-US"); }
 
   // join a list into "a, b, and c"
@@ -313,7 +315,7 @@
     var text = $("askText").textContent;
     var done = function(){ var c = $("copied"); c.classList.add("show"); setTimeout(function(){ c.classList.remove("show"); }, 1800); };
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(done, done);
+      navigator.clipboard.writeText(text).then(done, function(){ var c = $("copied"); c.textContent = "Select the text above to copy it"; c.classList.add("show"); setTimeout(function(){ c.classList.remove("show"); c.textContent = "Copied to clipboard"; }, 2600); });
     } else {
       var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
       try{ document.execCommand("copy"); }catch(e){} document.body.removeChild(t); done();
