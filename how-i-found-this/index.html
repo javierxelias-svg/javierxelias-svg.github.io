@@ -160,13 +160,13 @@
 
   <div class="case">
     <div class="case-h"><span class="case-n">CASE 01</span><span class="case-t">A salary that was 3× the real one</span></div>
-    <p>A role surfaced at <span class="em">$237,375</span>. The number looked wrong for the level, so
+    <p>A role surfaced at <span class="em">nearly a quarter of a million dollars</span>. The number looked wrong for the level, so
     I opened the posting. It was <strong>OTE</strong> — on-target earnings, base plus commission.
-    The guaranteed base was $75,541–$92,428. Nothing in the feed said so; the figure was simply
+    The guaranteed base was in the mid-$70,000s. Nothing in the feed said so; the figure was simply
     presented as pay.</p>
     <div class="ledger">
-      <span class="led"><u>system said</u><span class="said">$237,375</span></span>
-      <span class="led"><u>actually guaranteed</u><span class="was">$75,541</span></span>
+      <span class="led"><u>system said</u><span class="said">~$237k</span></span>
+      <span class="led"><u>actually guaranteed</u><span class="was">~$76k</span></span>
       <span class="led"><u>fix</u><span class="was">every figure is now base; OTE is labelled OTE</span></span>
     </div>
   </div>
@@ -179,10 +179,10 @@
     the system stores and what the user sees is not a bug in either; it is the seam where support
     tickets are born.</p>
 <pre>compensationTiers: [
-  { title: "San Francisco, New York",  <b>$86,250 – $109,250</b> },
-  { title: "United States",            <b>$75,000 – $95,000</b>  }   <b>&larr; what a remote candidate outside those cities is offered</b>
+  { title: "San Francisco, New York",  <b>~$86k – $109k</b> },
+  { title: "United States",            <b>~$75k – $95k</b>   }   <b>&larr; what a remote candidate outside those cities is offered</b>
 ]
-compensationTierSummary: "$75,000 – $109,250"   <b>&larr; the one on the page</b></pre>
+compensationTierSummary: "~$75k – $109k"   <b>&larr; the one on the page</b></pre>
     <div class="ledger">
       <span class="led"><u>shown</u><span class="said">one blended range</span></span>
       <span class="led"><u>published</u><span class="was">two tiers, in their own API</span></span>
@@ -217,7 +217,7 @@ compensationTierSummary: "$75,000 – $109,250"   <b>&larr; the one on the page<
   Every number on this page has a file behind it: the run log, the test output, the raw API
   response. That constraint is the reason I caught all three of the above instead of shipping a
   digest that quietly lied to me every morning.</p>
-  <p>It is also why the system has eighteen test files and why each of the three fixes above is
+  <p>It is also why the system now has 25 test files and why each of the three fixes above is
   pinned by a regression test, so it cannot come back. <strong>Honesty enforced by the machine, not by
   willpower.</strong></p>
 </section>
@@ -227,7 +227,7 @@ compensationTierSummary: "$75,000 – $109,250"   <b>&larr; the one on the page<
   <h2>I direct the code. I don't hand-write it.</h2>
   <p>I use Claude Code every day. I design what the system should do, I run it, I debug it when it
   breaks, and I verify what it produces — which is how all three errors above were found. I am not
-  going to tell you I hand-wrote nine thousand lines of Python, because that is not what happened,
+  going to tell you I hand-wrote thirteen thousand lines of Python, because that is not what happened,
   and you would find out in the first technical conversation.</p>
   <p>What I will claim: I can take something complicated and make it make sense to someone who does
   not want to learn it. Four years of doing exactly that — two as a butler at The St. Regis, two at
