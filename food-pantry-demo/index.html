@@ -2,325 +2,376 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Food Pantry Weekly Digest — a demo by Javier Elías Crespo</title>
-<meta name="description" content="A demo tool: turn a food pantry's messy weekly numbers into a clean, plain-English brief that anyone can read and act on. Sample data, edit anything, the digest updates live.">
+<meta name="description" content="A demo tool: turn a food pantry's messy weekly numbers into a plain-English brief and a ready-to-post community ask. Sample data; change anything and it recomputes live.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#f6f4ef;
-    --paper:#ffffff;
-    --ink:#1c1b18;
-    --muted:#6c685f;
-    --faint:#9a958a;
-    --teal:#0e7a71;
-    --teal-deep:#0a5850;
-    --teal-pale:#e7f2f0;
-    --amber:#b8701c;
-    --amber-pale:#f8ecd9;
-    --red:#b23b3b;
-    --red-pale:#f6e3e1;
-    --green-dot:#2f9e6f;
-    --line:#e7e2d9;
-    --sans:'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --mono:'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  }
-  *{ box-sizing:border-box; margin:0; padding:0; }
-  html{ -webkit-text-size-adjust:100%; }
-  body{
-    background:var(--bg); color:var(--ink); font-family:var(--sans);
-    line-height:1.55; -webkit-font-smoothing:antialiased;
-    padding:clamp(1rem,4vw,3rem);
-  }
-  .shell{ max-width:940px; margin:0 auto; }
-  a{ color:var(--teal-deep); }
+/* Layout: an operations board for a pantry volunteer. Brief + needs on top, the shelf (one gauge per item) on the left, the community post on the right. */
+:root{
+  --bg:#EEF1EF; --surface:#FFFFFF; --sunk:#F5F7F6; --ink:#13201B; --muted:#5C6A64; --faint:#8E9A95; --line:#DDE3E0;
+  --accent:#FF5A1F; --accent-ink:#B83A0B;
+  --crit:#E0363C; --crit-soft:#FDE8E8; --low:#E59A12; --low-soft:#FDF2DD; --ok:#22955E; --ok-soft:#E1F3E9; --full:#2F6FDB; --full-soft:#E3ECFB;
+  --track:#E7ECE9; --shadow:0 1px 0 rgba(19,32,27,.04),0 12px 32px -18px rgba(19,32,27,.28);
+  --sans:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --r:18px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C1311; --surface:#141D1A; --sunk:#101815; --ink:#E8EFEC; --muted:#9AAAA3; --faint:#6E7C76; --line:#24302C;
+  --accent:#FF7A45; --accent-ink:#FF9B71;
+  --crit:#FF5C61; --crit-soft:#3A1719; --low:#F5B23C; --low-soft:#3A2C12; --ok:#3CC985; --ok-soft:#12301F; --full:#6B9BFF; --full-soft:#16233F;
+  --track:#1F2A26; --shadow:0 1px 0 rgba(0,0,0,.3),0 14px 34px -18px rgba(0,0,0,.7); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1311; --surface:#141D1A; --sunk:#101815; --ink:#E8EFEC; --muted:#9AAAA3; --faint:#6E7C76; --line:#24302C;
+  --accent:#FF7A45; --accent-ink:#FF9B71;
+  --crit:#FF5C61; --crit-soft:#3A1719; --low:#F5B23C; --low-soft:#3A2C12; --ok:#3CC985; --ok-soft:#12301F; --full:#6B9BFF; --full-soft:#16233F;
+  --track:#1F2A26; --shadow:0 1px 0 rgba(0,0,0,.3),0 14px 34px -18px rgba(0,0,0,.7); color-scheme:dark}
 
-  .eyebrow{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--teal); font-weight:500; }
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px}
+.shell{max-width:1120px;margin:0 auto;display:grid;gap:16px}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* topbar */
-  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.8rem; }
-  .topbar h1{ font-size:clamp(1.6rem,4.5vw,2.5rem); font-weight:700; letter-spacing:-0.02em; line-height:1.05; margin:0.35rem 0 0.3rem; }
-  .wk{ color:var(--muted); font-size:0.95rem; }
-  .badge{ font-family:var(--mono); font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--amber); background:var(--amber-pale); border:1px solid #eeddc0; border-radius:100px; padding:0.4rem 0.8rem; white-space:nowrap; align-self:center; }
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.back{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--ink)}
+.bar__r{display:flex;gap:8px;align-items:center}
+.pill{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.pill--demo{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.theme{cursor:pointer}
 
-  /* the brief */
-  .lede{ font-size:clamp(1.15rem,2.6vw,1.55rem); line-height:1.4; letter-spacing:-0.01em; max-width:38ch; margin-bottom:1.6rem; }
-  .lede b{ color:var(--teal-deep); font-weight:600; }
+/* header card */
+.head{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+@media (max-width:860px){.head{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
+.brief{padding:clamp(20px,3.4vw,34px)}
+.org{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.org b{color:var(--ink);font-weight:500}
+.lede{font-size:clamp(22px,3.2vw,34px);line-height:1.18;letter-spacing:-.025em;font-weight:500;margin-top:14px;text-wrap:balance;max-width:30ch}
+.lede em{font-style:normal;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.lede .delta{font-size:.62em;font-family:var(--mono);letter-spacing:0;vertical-align:.2em;padding:2px 7px;border-radius:99px;margin-left:4px;white-space:nowrap}
+.delta.up{background:var(--ok-soft);color:var(--ok)} .delta.down{background:var(--crit-soft);color:var(--crit)}
 
-  .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:2rem; }
-  @media(max-width:620px){ .stats{ grid-template-columns:repeat(2,1fr); } }
-  .stat{ background:var(--paper); padding:1rem 1.1rem; }
-  .stat .n{ font-family:var(--mono); font-size:1.5rem; font-weight:500; letter-spacing:-0.02em; }
-  .stat .k{ font-size:0.78rem; color:var(--muted); margin-top:0.15rem; }
-  .stat .trend{ font-family:var(--mono); font-size:0.72rem; margin-left:0.4rem; }
-  .up{ color:var(--green-dot); } .down{ color:var(--red); }
+.needs{padding:clamp(20px,3vw,28px);display:flex;flex-direction:column;gap:14px}
+.needs__top{display:flex;align-items:baseline;gap:10px}
+.needs__n{font-size:64px;line-height:.9;font-weight:600;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.needs__k{color:var(--muted);font-size:14px;line-height:1.3}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:6px 12px 6px 18px;border-radius:6px 99px 99px 6px;background:var(--low-soft);color:var(--ink)}
+.tag::before{content:"";position:absolute;left:7px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--surface)}
+.tag.crit{background:var(--crit-soft)}
+.tag small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.allgood{color:var(--ok);font-weight:500}
 
-  /* community ask — golden hour, the emotional core */
-  .ask{ background:var(--amber-pale); border:1px solid #eeddc0; border-radius:14px; padding:clamp(1.1rem,3vw,1.7rem); margin-bottom:2rem; }
-  .ask .h{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--amber); margin-bottom:0.6rem; }
-  .ask p{ font-size:clamp(1.02rem,2.2vw,1.2rem); line-height:1.5; color:#3a3327; max-width:56ch; }
-  .ask .row{ display:flex; align-items:center; gap:0.9rem; margin-top:1rem; flex-wrap:wrap; }
-  .ask button{ font-family:var(--sans); font-size:0.85rem; font-weight:600; color:#fff; background:var(--amber); border:none; border-radius:8px; padding:0.55rem 1rem; cursor:pointer; transition:background .2s; }
-  .ask button:hover{ background:#9e5f14; }
-  .ask .copied{ font-family:var(--mono); font-size:0.75rem; color:var(--amber); opacity:0; transition:opacity .2s; }
-  .ask .copied.show{ opacity:1; }
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{padding:16px 18px;display:grid;gap:4px}
+.kpi__k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.kpi__v{font-size:28px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kpi__s{font-size:12.5px;color:var(--muted)}
+.kpi__edit{display:flex;align-items:center;gap:6px;margin-top:4px}
 
-  /* two columns */
-  .cols{ display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem; }
-  @media(max-width:620px){ .cols{ grid-template-columns:1fr; gap:1.5rem; } }
-  h2{ font-family:var(--mono); font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); padding-bottom:0.6rem; border-bottom:1.5px solid var(--line); margin-bottom:0.9rem; font-weight:500; }
-  h2 .hint{ text-transform:none; letter-spacing:0; color:var(--faint); font-family:var(--sans); font-size:0.8rem; margin-left:0.6rem; }
-  ul{ list-style:none; }
-  .li{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; padding:0.45rem 0; border-bottom:1px solid var(--line); font-size:0.95rem; }
-  .li:last-child{ border-bottom:none; }
-  .li .name{ font-weight:500; }
-  .li .cat{ color:var(--faint); font-size:0.8rem; font-family:var(--mono); }
-  .li .amt{ font-family:var(--mono); font-size:0.85rem; color:var(--muted); white-space:nowrap; }
-  .li.crit .amt{ color:var(--red); }
-  .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:0.5rem; }
-  .dot.g{ background:var(--green-dot); } .dot.a{ background:var(--amber); } .dot.r{ background:var(--red); }
-  .empty{ color:var(--faint); font-size:0.9rem; font-style:italic; padding:0.4rem 0; }
+/* steppers */
+.step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--sunk);overflow:hidden}
+.step button{width:30px;height:30px;border:0;background:none;cursor:pointer;font-size:16px;line-height:1;color:var(--muted)}
+.step button:hover{background:var(--track);color:var(--ink)}
+.step input{width:56px;height:30px;border:0;border-inline:1px solid var(--line);background:var(--surface);text-align:center;font-family:var(--mono);font-size:13px;color:var(--ink);-moz-appearance:textfield}
+.step input::-webkit-outer-spin-button,.step input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.step.sm input{width:46px} .step.sm button{width:26px;height:26px} .step.sm input{height:26px}
 
-  .vols{ display:flex; flex-wrap:wrap; gap:0.6rem; }
-  .vchip{ font-size:0.9rem; background:var(--teal-pale); color:var(--teal-deep); border-radius:100px; padding:0.4rem 0.85rem; }
-  .vchip b{ font-family:var(--mono); font-weight:500; }
+/* main */
+.main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+.sec{padding:clamp(18px,2.6vw,26px)}
+.sec__h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec__h h2{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.sec__h p{font-size:13px;color:var(--muted)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
 
-  section.block{ margin-bottom:2rem; }
+.shelf{list-style:none;display:grid}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:14px 0;border-top:1px solid var(--line);align-items:center}
+.row:first-child{border-top:0;padding-top:4px}
+.row__name{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+.row__name b{font-weight:600;font-size:15px}
+.cat{font-family:var(--mono);font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.state{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.state.crit{background:var(--crit-soft);color:var(--crit)} .state.low{background:var(--low-soft);color:var(--low)}
+.state.ok{background:var(--ok-soft);color:var(--ok)} .state.full{background:var(--full-soft);color:var(--full)}
+.gauge{grid-column:1 / -1;position:relative;height:10px;border-radius:99px;background:var(--track)}
+.gauge__fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;transition:width .35s cubic-bezier(.2,.8,.2,1),background .3s}
+.gauge__min{position:absolute;top:-4px;bottom:-4px;width:2px;border-radius:2px;background:var(--ink);opacity:.55;transition:left .35s}
+.gauge__tgt{position:absolute;top:-3px;bottom:-3px;width:2px;border-radius:2px;background:var(--faint);transition:left .35s}
+.row__nums{grid-column:1 / -1;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.row__nums b{color:var(--ink);font-weight:500}
+.row details{grid-column:1 / -1}
+.row summary{cursor:pointer;font-size:12px;color:var(--faint);list-style:none;width:max-content}
+.row summary::-webkit-details-marker{display:none}
+.row summary:hover{color:var(--ink)}
+.limits{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted);align-items:center}
+.limits label{display:flex;gap:8px;align-items:center}
 
-  /* editable data */
-  .data{ background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:clamp(1.1rem,3vw,1.7rem); }
-  .weekrow{ display:flex; flex-wrap:wrap; gap:1.4rem; margin-bottom:1.4rem; }
-  .field{ display:flex; flex-direction:column; gap:0.25rem; }
-  .field label{ font-size:0.75rem; color:var(--muted); }
-  .field input{ font-family:var(--mono); font-size:0.95rem; width:7.5rem; padding:0.4rem 0.55rem; border:1px solid var(--line); border-radius:7px; background:#fcfbf9; color:var(--ink); }
-  .field input:focus{ outline:2px solid var(--teal-pale); border-color:var(--teal); }
-  table{ width:100%; border-collapse:collapse; font-size:0.9rem; }
-  thead th{ text-align:left; font-family:var(--mono); font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--faint); font-weight:500; padding:0.4rem 0.5rem; border-bottom:1.5px solid var(--line); }
-  thead th.num{ text-align:right; }
-  tbody td{ padding:0.35rem 0.5rem; border-bottom:1px solid var(--line); vertical-align:middle; }
-  tbody tr:last-child td{ border-bottom:none; }
-  td.num{ text-align:right; }
-  td input{ font-family:var(--mono); font-size:0.88rem; width:4.5rem; text-align:right; padding:0.3rem 0.4rem; border:1px solid var(--line); border-radius:6px; background:#fcfbf9; color:var(--ink); }
-  td input:focus{ outline:2px solid var(--teal-pale); border-color:var(--teal); }
-  .u{ color:var(--faint); font-family:var(--mono); font-size:0.75rem; margin-left:0.2rem; }
+/* right column */
+.side{display:grid;gap:16px;position:sticky;top:max(16px,env(safe-area-inset-top,0px))}
+@media (max-width:900px){.side{position:static;order:-1}.main{display:flex;flex-direction:column}}
+.post{padding:18px}
+.post__k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+.msg{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--sunk)}
+.msg__who{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;background:var(--ok)}
+.msg__who b{font-size:14px;display:block;line-height:1.2}
+.msg__who small{font-size:12px;color:var(--faint)}
+.msg p{font-size:15px;line-height:1.5;white-space:pre-line}
+.post__row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;flex-wrap:wrap}
+.copy{border:0;border-radius:12px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;background:var(--ink);color:var(--surface);transition:transform .15s}
+.copy:active{transform:scale(.97)}
+.copy.done{background:var(--ok);color:#fff}
+.chars{font-family:var(--mono);font-size:12px;color:var(--faint)}
 
-  footer{ margin-top:2.5rem; padding-top:1.4rem; border-top:1px solid var(--line); font-size:0.85rem; color:var(--muted); }
-  footer a{ color:var(--teal-deep); text-decoration:none; border-bottom:1px solid var(--line); }
-  footer .note{ font-family:var(--mono); font-size:0.72rem; color:var(--faint); margin-top:0.4rem; }
+.vol{padding:18px}
+.vlist{list-style:none;display:grid;gap:10px}
+.vrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;font-size:14px}
+.vbar{grid-column:1 / -1;height:6px;border-radius:99px;background:var(--track);overflow:hidden}
+.vbar i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .35s}
+.vrow span{font-family:var(--mono);font-size:12px;color:var(--muted)}
 
-  noscript .ns{ display:block; background:var(--amber-pale); border:1px solid #eeddc0; border-radius:10px; padding:1rem; margin-bottom:1.5rem; font-size:0.95rem; }
+footer{padding:18px 4px 0;font-size:13px;color:var(--muted);display:grid;gap:6px;max-width:72ch}
+footer b{color:var(--ink);font-weight:600}
+footer .note{font-family:var(--mono);font-size:12px;color:var(--faint)}
+footer a{text-decoration:none;border-bottom:1px solid var(--line)}
+noscript .ns{display:block;background:var(--low-soft);border-radius:12px;padding:14px;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="shell">
-  <a href="/" style="display:inline-block;margin-bottom:1.2rem;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:#3a3fc4;text-decoration:none;border-bottom:1px solid rgba(23,22,28,.14)">&larr; Back to the portfolio</a>
-
-  <noscript><div class="ns">This is an interactive demo — please enable JavaScript to see the live weekly digest.</div></noscript>
-
-  <header class="topbar">
-    <div>
-      <div class="eyebrow">Weekly Operations Digest</div>
-      <h1>Riverside Community Food Pantry</h1>
-      <div class="wk">Week of <span id="weekOf">—</span></div>
+  <div class="bar">
+    <a class="back" href="/">&larr; Back to the portfolio</a>
+    <div class="bar__r">
+      <span class="pill pill--demo">Demo · sample data</span>
+      <button class="pill theme" id="themeBtn" type="button" aria-label="Switch light or dark">Dark</button>
     </div>
-    <div class="badge">Demo · sample data</div>
-  </header>
-
-  <p class="lede" id="lede"></p>
-
-  <div class="stats" id="stats"></div>
-
-  <section class="ask">
-    <div class="h">This week's ask to the community</div>
-    <p id="askText"></p>
-    <div class="row">
-      <button id="copyBtn" type="button">Copy this post</button>
-      <span class="copied" id="copied">Copied to clipboard</span>
-    </div>
-  </section>
-
-  <div class="cols">
-    <section>
-      <h2>Well stocked</h2>
-      <ul id="stocked"></ul>
-    </section>
-    <section>
-      <h2>Running low</h2>
-      <ul id="low"></ul>
-    </section>
   </div>
 
-  <section class="block">
-    <h2>Volunteers this week</h2>
-    <div class="vols" id="vols"></div>
+  <noscript><div class="ns">This is an interactive demo. Please enable JavaScript to see the live weekly digest.</div></noscript>
+
+  <section class="head" aria-label="This week">
+    <div class="card brief">
+      <div class="org"><b>Riverside Community Food Pantry</b><span>Weekly digest · <span id="weekOf">this week</span></span></div>
+      <p class="lede" id="lede">This week's numbers are loading.</p>
+    </div>
+    <div class="card needs" aria-live="polite">
+      <div class="needs__top"><span class="needs__n" id="needN">0</span><span class="needs__k" id="needK">items below their weekly minimum</span></div>
+      <div class="tags" id="needTags"></div>
+    </div>
   </section>
 
-  <section class="data">
-    <h2>The data <span class="hint">edit anything — the digest above updates live</span></h2>
-    <div class="weekrow">
-      <div class="field"><label for="fServed">Families served</label><input id="fServed" type="number" min="0" inputmode="numeric"></div>
-      <div class="field"><label for="fLast">Families last week</label><input id="fLast" type="number" min="0" inputmode="numeric"></div>
-      <div class="field"><label for="lbs">Donations in (lbs)</label><input id="lbs" type="number" min="0" inputmode="numeric"></div>
-    </div>
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th><th>Category</th>
-          <th class="num">On hand</th><th class="num">Weekly minimum</th><th class="num">Target</th>
-        </tr>
-      </thead>
-      <tbody id="invBody"></tbody>
-    </table>
-    </div>
+  <section class="kpis" aria-label="Key numbers">
+    <div class="card kpi"><span class="kpi__k">Families served</span><span class="kpi__v" id="kServed">0</span><div class="kpi__edit"><div class="step sm" data-week="familiesServed" data-by="1"></div></div></div>
+    <div class="card kpi"><span class="kpi__k">Last week</span><span class="kpi__v" id="kLast">0</span><div class="kpi__edit"><div class="step sm" data-week="familiesLastWeek" data-by="1"></div></div></div>
+    <div class="card kpi"><span class="kpi__k">Pounds donated</span><span class="kpi__v" id="kLbs">0</span><div class="kpi__edit"><div class="step sm" data-week="lbsDonated" data-by="10"></div></div></div>
+    <div class="card kpi"><span class="kpi__k">Volunteer hours</span><span class="kpi__v" id="kHours">0</span><span class="kpi__s" id="kVols">0 volunteers</span></div>
   </section>
+
+  <div class="main">
+    <section class="card sec" aria-labelledby="shelfH">
+      <div class="sec__h">
+        <div><h2 id="shelfH">The shelf</h2><p>Use − and + as stock comes in and goes out. Everything above updates.</p></div>
+        <div class="legend"><span><i style="background:var(--crit)"></i>Critical</span><span><i style="background:var(--low)"></i>Below minimum</span><span><i style="background:var(--ok)"></i>OK</span><span><i style="background:var(--full)"></i>Full</span></div>
+      </div>
+      <ul class="shelf" id="shelf"></ul>
+    </section>
+
+    <aside class="side">
+      <section class="card post" aria-labelledby="postH">
+        <div class="post__k" id="postH">Post for the community · ready to share</div>
+        <div class="msg">
+          <div class="msg__who"><span class="avatar" aria-hidden="true">R</span><div><b>Riverside Community Food Pantry</b><small>Draft · just now</small></div></div>
+          <p id="askText"></p>
+        </div>
+        <div class="post__row">
+          <button class="copy" id="copyBtn" type="button">Copy this post</button>
+          <span class="chars" id="chars"></span>
+        </div>
+      </section>
+
+      <section class="card vol" aria-labelledby="volH">
+        <div class="post__k" id="volH">Volunteers this week</div>
+        <ul class="vlist" id="vols"></ul>
+      </section>
+    </aside>
+  </div>
 
   <footer>
-    A demo built on <b>sample data</b> — no real pantry's information is shown. It illustrates the kind of tool I build: taking a small organization's messy weekly numbers and turning them into a plain-English brief anyone can read and act on.
-    <div class="note">Built by Javier Elías Crespo with Claude Code · <a href="https://javierxelias-svg.github.io">javierxelias-svg.github.io</a></div>
+    <p>A demo built on <b>sample data</b>. No real pantry's information is shown. It shows the kind of tool I build: a small organization's messy weekly numbers turned into a plain-English brief, and an ask anyone can post.</p>
+    <p class="note">Built by Javier Elías Crespo with Claude Code · <a href="https://javierxelias-svg.github.io">javierxelias-svg.github.io</a> · <a href="https://github.com/javierxelias-svg/food-pantry-weekly-digest">the code</a></p>
   </footer>
-
 </div>
 
 <script>
 (function(){
   // ---- sample data (a made-up pantry's week) ----
-  var week = { weekOf: "November 3–9, 2025", familiesServed: 214, familiesLastWeek: 188, lbsDonated: 1640 };
+  var week = { familiesServed: 214, familiesLastWeek: 188, lbsDonated: 1640 };
   var volunteers = [
     { name: "Marisol", hours: 12 }, { name: "Deacon Ray", hours: 9 },
-    { name: "The Torres kids", hours: 6 }, { name: "Nelson", hours: 8 }, { name: "Aunt Pat", hours: 5 }
+    { name: "Nelson", hours: 8 }, { name: "The Torres kids", hours: 6 }, { name: "Aunt Pat", hours: 5 }
   ];
   // onHand, min (weekly minimum before it's an ask), target (fully stocked)
   var inventory = [
-    { name: "Rice (20 lb bags)",     category: "Staples",  unit: "bags", onHand: 9,  min: 12, target: 30 },
-    { name: "Canned beans",          category: "Protein",  unit: "cans", onHand: 240, min: 120, target: 200 },
-    { name: "Peanut butter",         category: "Protein",  unit: "jars", onHand: 14, min: 40, target: 90 },
-    { name: "Pasta",                 category: "Staples",  unit: "boxes", onHand: 176, min: 80, target: 160 },
-    { name: "Baby formula",          category: "Infant",   unit: "cans", onHand: 5,  min: 25, target: 60 },
-    { name: "Fresh produce",         category: "Produce",  unit: "lbs",  onHand: 310, min: 150, target: 300 },
-    { name: "Diapers (size 4)",      category: "Infant",   unit: "packs", onHand: 8,  min: 20, target: 45 },
-    { name: "Cooking oil",           category: "Staples",  unit: "bottles", onHand: 62, min: 30, target: 60 },
-    { name: "Cereal",                category: "Breakfast", unit: "boxes", onHand: 22, min: 50, target: 110 },
-    { name: "Shelf-stable milk",     category: "Dairy",    unit: "cartons", onHand: 130, min: 90, target: 180 }
+    { name: "Rice", note: "20 lb bags", category: "Staples", unit: "bags", onHand: 9, min: 12, target: 30 },
+    { name: "Canned beans", category: "Protein", unit: "cans", onHand: 240, min: 120, target: 200 },
+    { name: "Peanut butter", category: "Protein", unit: "jars", onHand: 14, min: 40, target: 90 },
+    { name: "Pasta", category: "Staples", unit: "boxes", onHand: 176, min: 80, target: 160 },
+    { name: "Baby formula", category: "Infant", unit: "cans", onHand: 5, min: 25, target: 60 },
+    { name: "Fresh produce", category: "Produce", unit: "lbs", onHand: 310, min: 150, target: 300 },
+    { name: "Diapers", note: "size 4", category: "Infant", unit: "packs", onHand: 8, min: 20, target: 45 },
+    { name: "Cooking oil", category: "Staples", unit: "bottles", onHand: 62, min: 30, target: 60 },
+    { name: "Cereal", category: "Breakfast", unit: "boxes", onHand: 22, min: 50, target: 110 },
+    { name: "Shelf-stable milk", category: "Dairy", unit: "cartons", onHand: 130, min: 90, target: 180 }
   ];
 
   var $ = function(id){ return document.getElementById(id); };
-  function n(x){ return Math.max(0, Number(x) || 0); }
+  function n(x){ return Math.max(0, Math.round(Number(x)) || 0); }
   function fmt(x){ return n(x).toLocaleString("en-US"); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function joinAnd(a){ return a.length < 2 ? (a[0] || "") : a.length === 2 ? a[0] + " and " + a[1] : a.slice(0,-1).join(", ") + ", and " + a[a.length-1]; }
 
-  // join a list into "a, b, and c"
-  function joinAnd(arr){
-    if(arr.length === 0) return "";
-    if(arr.length === 1) return arr[0];
-    if(arr.length === 2) return arr[0] + " and " + arr[1];
-    return arr.slice(0,-1).join(", ") + ", and " + arr[arr.length-1];
-  }
+  // the week we're in, so the sample never looks stale
+  (function(){
+    var d = new Date(), day = (d.getDay() + 6) % 7, mon = new Date(d); mon.setDate(d.getDate() - day);
+    var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    var m = function(x){ return x.toLocaleDateString("en-US", { month: "short" }); };
+    $("weekOf").textContent = "week of " + m(mon) + " " + mon.getDate() + "–" + (m(sun) !== m(mon) ? m(sun) + " " : "") + sun.getDate() + ", " + sun.getFullYear();
+  })();
 
-  function status(item){
-    if(n(item.onHand) < n(item.min)) return "low";
-    if(n(item.onHand) >= n(item.target)) return "stocked";
+  // critical: under half the minimum · low: under the minimum · full: at or over target
+  function status(i){
+    if (n(i.onHand) < n(i.min) / 2) return "crit";
+    if (n(i.onHand) < n(i.min)) return "low";
+    if (n(i.onHand) >= n(i.target)) return "full";
     return "ok";
   }
+  var LABEL = { crit: "Critical", low: "Below minimum", ok: "OK", full: "Full" };
+  var ORDER = { crit: 0, low: 1, ok: 2, full: 3 };
+  var COLOR = { crit: "var(--crit)", low: "var(--low)", ok: "var(--ok)", full: "var(--full)" };
+
+  // a − / + stepper bound to a getter and setter
+  function stepper(el, get, set, by, label){
+    el.innerHTML = "<button type='button' aria-label='Less " + esc(label) + "'>−</button><input type='number' min='0' inputmode='numeric' aria-label='" + esc(label) + "'><button type='button' aria-label='More " + esc(label) + "'>+</button>";
+    var b = el.querySelectorAll("button"), inp = el.querySelector("input");
+    inp.value = get();
+    b[0].addEventListener("click", function(){ set(n(get() - by)); inp.value = get(); render(); });
+    b[1].addEventListener("click", function(){ set(n(get() + by)); inp.value = get(); render(); });
+    inp.addEventListener("input", function(){ set(n(inp.value)); render(); });
+    inp.addEventListener("blur", function(){ inp.value = get(); });
+  }
+
+  document.querySelectorAll("[data-week]").forEach(function(el){
+    var key = el.dataset.week;
+    stepper(el, function(){ return week[key]; }, function(v){ week[key] = v; }, Number(el.dataset.by), el.closest(".kpi").querySelector(".kpi__k").textContent);
+  });
+
+  // build the shelf rows once, update them in render()
+  var shelf = $("shelf");
+  inventory.forEach(function(it){
+    var li = document.createElement("li"); li.className = "row";
+    li.innerHTML =
+      "<div class='row__name'><b>" + esc(it.name) + "</b>" + (it.note ? "<span class='cat'>" + esc(it.note) + "</span>" : "") + "<span class='cat'>· " + esc(it.category) + "</span><span class='state'></span></div>" +
+      "<div class='step sm'></div>" +
+      "<div class='gauge' aria-hidden='true'><span class='gauge__fill'></span><span class='gauge__min' title='weekly minimum'></span><span class='gauge__tgt' title='target'></span></div>" +
+      "<div class='row__nums'><span class='have'></span><span class='need'></span></div>" +
+      "<details><summary>Change minimum and target</summary><div class='limits'><label>Minimum <span class='step sm' data-k='min'></span></label><label>Target <span class='step sm' data-k='target'></span></label></div></details>";
+    stepper(li.querySelector(".row > .step"), function(){ return it.onHand; }, function(v){ it.onHand = v; }, 1, it.name + " on hand");
+    li.querySelectorAll(".limits .step").forEach(function(s){
+      var k = s.dataset.k;
+      stepper(s, function(){ return it[k]; }, function(v){ it[k] = v; }, 1, it.name + " " + (k === "min" ? "minimum" : "target"));
+    });
+    it.el = li; shelf.appendChild(li);
+  });
 
   function render(){
-    $("weekOf").textContent = week.weekOf;
+    var hours = volunteers.reduce(function(s,v){ return s + n(v.hours); }, 0);
+    var needs = inventory.filter(function(i){ var s = status(i); return s === "crit" || s === "low"; })
+      .sort(function(a,b){ return ORDER[status(a)] - ORDER[status(b)] || n(a.onHand)/Math.max(1,n(a.min)) - n(b.onHand)/Math.max(1,n(b.min)); });
 
-    var totalHours = volunteers.reduce(function(s,v){ return s + n(v.hours); }, 0);
-    var low = inventory.filter(function(i){ return status(i) === "low"; });
-    var stocked = inventory.filter(function(i){ return status(i) === "stocked"; });
-
-    // lede
-    $("lede").innerHTML = "This week you served <b>" + fmt(week.familiesServed) + "</b> families, took in <b>"
-      + fmt(week.lbsDonated) + " lbs</b> of donations, and <b>" + volunteers.length + "</b> volunteers gave <b>"
-      + totalHours + " hours</b>.";
-
-    // stats
+    // the brief
     var diff = n(week.familiesServed) - n(week.familiesLastWeek);
-    var trend = diff === 0 ? "" : (diff > 0
-      ? " <span class='trend up'>▲ " + Math.abs(diff) + "</span>"
-      : " <span class='trend down'>▼ " + Math.abs(diff) + "</span>");
-    var tiles = [
-      { n: fmt(week.familiesServed) + trend, k: "Families served" + (diff!==0 ? " vs last week" : "") },
-      { n: fmt(week.lbsDonated), k: "Pounds donated in" },
-      { n: totalHours, k: "Volunteer hours" },
-      { n: low.length, k: low.length === 1 ? "Item below minimum" : "Items below minimum" }
-    ];
-    $("stats").innerHTML = tiles.map(function(t){
-      return "<div class='stat'><div class='n'>" + t.n + "</div><div class='k'>" + t.k + "</div></div>";
-    }).join("");
+    var delta = diff === 0 ? "" : "<span class='delta " + (diff > 0 ? "up" : "down") + "'>" + (diff > 0 ? "+" : "−") + fmt(Math.abs(diff)) + " vs last week</span>";
+    $("lede").innerHTML = "You served <em>" + fmt(week.familiesServed) + " families</em>" + delta + ", took in <em>" + fmt(week.lbsDonated) + " lbs</em> of donations, and " +
+      volunteers.length + " volunteers gave <em>" + hours + " hours</em>.";
 
-    // community ask
-    var askEl = $("askText");
-    if(low.length === 0){
-      askEl.textContent = "Every item is at or above its weekly minimum this week. Nothing urgent to ask for — thank your donors.";
-    } else {
-      var names = low.map(function(i){ return i.name.replace(/\s*\(.*?\)/, "").toLowerCase(); });
-      askEl.textContent = "We're running low on " + joinAnd(names) + ". If you can donate, we're open Monday through Saturday, 9 to 5. Every bag helps a neighbor eat this week. 🙏";
-    }
+    // needs
+    $("needN").textContent = needs.length;
+    $("needN").style.color = needs.length ? (status(needs[0]) === "crit" ? "var(--crit)" : "var(--low)") : "var(--ok)";
+    $("needK").textContent = needs.length === 1 ? "item below its weekly minimum" : "items below their weekly minimum";
+    $("needTags").innerHTML = needs.length
+      ? needs.map(function(i){ return "<span class='tag " + status(i) + "'>" + esc(i.name) + " <small>" + fmt(i.onHand) + "/" + fmt(i.min) + "</small></span>"; }).join("")
+      : "<span class='allgood'>Every item is at or above its minimum.</span>";
 
-    // stocked / low lists
-    function liHTML(i, kind){
-      var s = status(i);
-      var dot = kind === "low" ? (n(i.onHand) < n(i.min)/2 ? "r" : "a") : "g";
-      var crit = (kind === "low" && n(i.onHand) < n(i.min)/2) ? " crit" : "";
-      var amt = kind === "low"
-        ? (fmt(i.onHand) + " left · need " + fmt(i.min))
-        : (fmt(i.onHand) + " " + i.unit);
-      return "<li class='li" + crit + "'><span class='name'><span class='dot " + dot + "'></span>" + i.name
-        + " <span class='cat'>" + i.category + "</span></span><span class='amt'>" + amt + "</span></li>";
-    }
-    $("stocked").innerHTML = stocked.length
-      ? stocked.map(function(i){ return liHTML(i, "stocked"); }).join("")
-      : "<div class='empty'>Nothing is fully stocked this week.</div>";
-    $("low").innerHTML = low.length
-      ? low.map(function(i){ return liHTML(i, "low"); }).join("")
-      : "<div class='empty'>Nothing below minimum — you're in good shape.</div>";
+    // kpis
+    $("kServed").textContent = fmt(week.familiesServed);
+    $("kLast").textContent = fmt(week.familiesLastWeek);
+    $("kLbs").textContent = fmt(week.lbsDonated);
+    $("kHours").textContent = hours;
+    $("kVols").textContent = volunteers.length + " volunteers";
+
+    // shelf: sort by urgency, update gauges
+    inventory.slice().sort(function(a,b){ return ORDER[status(a)] - ORDER[status(b)]; }).forEach(function(it){ shelf.appendChild(it.el); });
+    inventory.forEach(function(it){
+      var s = status(it), max = Math.max(n(it.target), n(it.onHand), n(it.min), 1);
+      var st = it.el.querySelector(".state"); st.className = "state " + s; st.textContent = LABEL[s];
+      var f = it.el.querySelector(".gauge__fill"); f.style.width = (n(it.onHand) / max * 100) + "%"; f.style.background = COLOR[s];
+      it.el.querySelector(".gauge__min").style.left = "calc(" + (n(it.min) / max * 100) + "% - 1px)";
+      it.el.querySelector(".gauge__tgt").style.left = "calc(" + (n(it.target) / max * 100) + "% - 1px)";
+      it.el.querySelector(".have").innerHTML = "<b>" + fmt(it.onHand) + "</b> " + esc(it.unit) + " on hand";
+      it.el.querySelector(".need").textContent = (s === "crit" || s === "low")
+        ? "needs " + fmt(n(it.min) - n(it.onHand)) + " more to reach the minimum of " + fmt(it.min)
+        : "minimum " + fmt(it.min) + " · target " + fmt(it.target);
+    });
+
+    // the community post
+    var ask = needs.length === 0
+      ? "Good news: every shelf is at or above its weekly minimum. Thank you to everyone who donated and volunteered this week."
+      : "We're running low on " + joinAnd(needs.map(function(i){ return i.name.toLowerCase(); })) + ".\n\nIf you can donate, we're open Monday through Saturday, 9 to 5. Every bag helps a neighbor eat this week. 🙏";
+    $("askText").textContent = ask;
+    $("chars").textContent = ask.length + " characters";
 
     // volunteers
-    $("vols").innerHTML = volunteers.slice().sort(function(a,b){ return n(b.hours)-n(a.hours); })
-      .map(function(v){ return "<span class='vchip'>" + v.name + " <b>" + n(v.hours) + "h</b></span>"; }).join("");
+    var top = Math.max.apply(null, volunteers.map(function(v){ return n(v.hours); }).concat(1));
+    $("vols").innerHTML = volunteers.slice().sort(function(a,b){ return n(b.hours) - n(a.hours); }).map(function(v){
+      return "<li class='vrow'>" + esc(v.name) + "<span>" + n(v.hours) + "h</span><div class='vbar'><i style='width:" + (n(v.hours)/top*100) + "%'></i></div></li>";
+    }).join("");
   }
 
-  // ---- editable inputs ----
-  function bindWeek(id, key){
-    var el = $(id); el.value = week[key];
-    el.addEventListener("input", function(){ week[key] = n(el.value); render(); });
-  }
-  bindWeek("fServed", "familiesServed");
-  bindWeek("fLast", "familiesLastWeek");
-  bindWeek("lbs", "lbsDonated");
-
-  // inventory table (editable onHand / min / target)
-  var body = $("invBody");
-  inventory.forEach(function(item, idx){
-    var tr = document.createElement("tr");
-    tr.innerHTML = "<td class='name'>" + item.name + "</td><td>" + item.category + "</td>"
-      + "<td class='num'></td><td class='num'></td><td class='num'></td>";
-    var cells = tr.querySelectorAll("td.num");
-    [["onHand",2],["min",3],["target",4]].forEach(function(pair, k){
-      var key = pair[0];
-      var inp = document.createElement("input");
-      inp.type = "number"; inp.min = "0"; inp.inputMode = "numeric"; inp.value = item[key];
-      inp.addEventListener("input", function(){ item[key] = n(inp.value); render(); });
-      cells[k].appendChild(inp);
-      cells[k].insertAdjacentHTML("beforeend", "<span class='u'>" + (k===0 ? item.unit : "") + "</span>");
-    });
-    body.appendChild(tr);
-  });
-
-  // copy the ask
+  // copy the post, and say so honestly if the browser refuses
   $("copyBtn").addEventListener("click", function(){
-    var text = $("askText").textContent;
-    var done = function(){ var c = $("copied"); c.classList.add("show"); setTimeout(function(){ c.classList.remove("show"); }, 1800); };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(done, function(){ var c = $("copied"); c.textContent = "Select the text above to copy it"; c.classList.add("show"); setTimeout(function(){ c.classList.remove("show"); c.textContent = "Copied to clipboard"; }, 2600); });
-    } else {
-      var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
-      try{ document.execCommand("copy"); }catch(e){} document.body.removeChild(t); done();
+    var b = $("copyBtn"), text = $("askText").textContent;
+    function show(msg, ok){ b.textContent = msg; b.classList.toggle("done", ok); setTimeout(function(){ b.textContent = "Copy this post"; b.classList.remove("done"); }, 2200); }
+    function fallback(){
+      var r = document.createRange(); r.selectNodeContents($("askText"));
+      var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      show("Selected · press Copy", false);
     }
+    try { navigator.clipboard.writeText(text).then(function(){ show("Copied ✓", true); }, fallback); }
+    catch(e){ fallback(); }
   });
+
+  // light / dark, remembered on this device only
+  var root = document.documentElement, tb = $("themeBtn");
+  function isDark(){ return root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; }
+  function label(){ tb.textContent = isDark() ? "Light" : "Dark"; }
+  try { var saved = localStorage.getItem("pantry-theme"); if (saved) root.dataset.theme = saved; } catch(e){}
+  tb.addEventListener("click", function(){ root.dataset.theme = isDark() ? "light" : "dark"; try { localStorage.setItem("pantry-theme", root.dataset.theme); } catch(e){} label(); });
+  label();
 
   render();
 })();
